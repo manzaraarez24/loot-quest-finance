@@ -8,17 +8,17 @@ interface LootBoxModalProps {
   isOpen: boolean;
   onClose: () => void;
   result: LootBoxResult | null;
-  onOpen: () => LootBoxResult;
+  onOpen: () => LootBoxResult | Promise<LootBoxResult>;
 }
 
 export function LootBoxModal({ isOpen, onClose, result, onOpen }: LootBoxModalProps) {
   const [isOpening, setIsOpening] = useState(false);
   const [currentResult, setCurrentResult] = useState<LootBoxResult | null>(result);
 
-  const handleOpen = () => {
+  const handleOpen = async () => {
     setIsOpening(true);
-    setTimeout(() => {
-      const newResult = onOpen();
+    setTimeout(async () => {
+      const newResult = await onOpen();
       setCurrentResult(newResult);
       setIsOpening(false);
     }, 1500);

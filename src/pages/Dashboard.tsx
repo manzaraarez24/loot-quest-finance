@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useGameState } from '@/hooks/useGameState';
+import { useGameData } from '@/hooks/useGameData';
+import { useAuth } from '@/contexts/AuthContext';
 import { HPBar } from '@/components/game/HPBar';
 import { AvatarEvolution } from '@/components/game/AvatarEvolution';
 import { XPBar } from '@/components/game/XPBar';
@@ -15,11 +16,14 @@ import { DungeonMap } from '@/components/game/DungeonMap';
 import { SpendingProphecyCard } from '@/components/game/SpendingProphecy';
 import { RegretCalculator } from '@/components/game/RegretCalculator';
 import { LootBoxResult } from '@/types/game';
-import { Wallet, Shield } from 'lucide-react';
+import { Wallet, Shield, LogOut, Loader2 } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 
 const Dashboard = () => {
+  const { signOut, user } = useAuth();
   const {
+    loading,
     stats,
     transactions,
     inventory,
@@ -33,32 +37,43 @@ const Dashboard = () => {
     getXPProgress,
     defeatBoss,
     equipAccessory,
-  } = useGameState();
+  } = useGameData();
 
   const [isLootBoxOpen, setIsLootBoxOpen] = useState(false);
   const [lootResult, setLootResult] = useState<LootBoxResult | null>(null);
   const [isAvatarAnimating, setIsAvatarAnimating] = useState(false);
 
-  const handleClaimNoSpendDay = () => {
-    const result = claimNoSpendDay();
+  const handleClaimNoSpendDay = async () => {
+    const result = await claimNoSpendDay();
     setLootResult(result.lootBox);
     setIsLootBoxOpen(true);
     setIsAvatarAnimating(true);
     setTimeout(() => setIsAvatarAnimating(false), 500);
   };
 
-  const handleOpenLootBox = () => {
-    const result = openLootBox();
+  const handleOpenLootBox = async () => {
+    const result = await openLootBox();
     return result;
   };
 
-  const handleDefeatBoss = (bossId: string, amount: number) => {
-    const result = defeatBoss(bossId, amount);
+  const handleDefeatBoss = async (bossId: string, amount: number) => {
+    const result = await defeatBoss(bossId, amount);
     if (result && 'item' in result) {
       setLootResult(result as LootBoxResult);
       setIsLootBoxOpen(true);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background cyber-grid scanline flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-12 h-12 text-neon-green animate-spin" />
+          <p className="text-neon-green font-display">Loading your adventure...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background cyber-grid scanline relative overflow-hidden">
@@ -73,16 +88,30 @@ const Dashboard = () => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <Shield className="w-8 h-8 text-neon-green" />
-            <h1 className="font-display text-4xl font-black text-foreground tracking-tight">
-              <span className="text-neon-green neon-text-green">LOOT</span>
-              <span className="text-neon-pink neon-text-pink">BAG</span>
-            </h1>
-            <Wallet className="w-8 h-8 text-neon-pink" />
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex-1" />
+            <div className="flex items-center justify-center gap-3">
+              <Shield className="w-8 h-8 text-neon-green" />
+              <h1 className="font-display text-4xl font-black text-foreground tracking-tight">
+                <span className="text-neon-green neon-text-green">LOOT</span>
+                <span className="text-neon-pink neon-text-pink">BAG</span>
+              </h1>
+              <Wallet className="w-8 h-8 text-neon-pink" />
+            </div>
+            <div className="flex-1 flex justify-end">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={signOut}
+                className="text-muted-foreground hover:text-neon-pink"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+            </div>
           </div>
           <p className="text-sm text-muted-foreground font-body">
-            Level up your finances. Protect your loot.
+            Welcome back, {user?.email?.split('@')[0]}! Level up your finances.
           </p>
         </motion.header>
 
@@ -215,22 +244,26 @@ const Dashboard = () => {
                 🎒 Your Inventory ({inventory.length} items)
               </h3>
               <div className="flex flex-wrap gap-3">
-                {inventory.map((item) => (
-                  <motion.div
-                    key={item.id}
-                    className={`px-4 py-2 rounded-lg border flex items-center gap-2 ${
-                      item.rarity === 'legendary'
-                        ? 'bg-neon-orange/10 border-neon-orange/50'
-                        : item.rarity === 'rare'
-                        ? 'bg-neon-purple/10 border-neon-purple/50'
-                        : 'bg-muted/50 border-border'
-                    }`}
-                    whileHover={{ scale: 1.05 }}
-                  >
-                    <span className="text-xl">{item.icon}</span>
-                    <span className="text-sm font-medium">{item.name}</span>
-                  </motion.div>
-                ))}
+                {inventory.length === 0 ? (
+                  <p className="text-muted-foreground text-sm">No items yet. Claim a No-Spend Day to earn loot!</p>
+                ) : (
+                  inventory.map((item) => (
+                    <motion.div
+                      key={item.id}
+                      className={`px-4 py-2 rounded-lg border flex items-center gap-2 ${
+                        item.rarity === 'legendary'
+                          ? 'bg-neon-orange/10 border-neon-orange/50'
+                          : item.rarity === 'rare'
+                          ? 'bg-neon-purple/10 border-neon-purple/50'
+                          : 'bg-muted/50 border-border'
+                      }`}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <span className="text-xl">{item.icon}</span>
+                      <span className="text-sm font-medium">{item.name}</span>
+                    </motion.div>
+                  ))
+                )}
               </div>
             </motion.section>
           </TabsContent>

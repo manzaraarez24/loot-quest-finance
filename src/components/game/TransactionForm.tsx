@@ -6,8 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Minus, Plus, DollarSign } from 'lucide-react';
 
 interface TransactionFormProps {
-  onAddExpense: (amount: number, category: string, description: string) => void;
-  onAddIncome: (amount: number, description: string) => { xpGained: number; levelUp: boolean };
+  onAddExpense: (amount: number, category: string, description: string) => void | Promise<void>;
+  onAddIncome: (amount: number, description: string) => { xpGained: number; levelUp: boolean } | Promise<{ xpGained: number; levelUp: boolean }>;
 }
 
 export function TransactionForm({ onAddExpense, onAddIncome }: TransactionFormProps) {
@@ -17,14 +17,14 @@ export function TransactionForm({ onAddExpense, onAddIncome }: TransactionFormPr
   const [description, setDescription] = useState('');
   const [showXPGain, setShowXPGain] = useState<number | null>(null);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const numAmount = parseFloat(amount);
     if (isNaN(numAmount) || numAmount <= 0) return;
 
     if (type === 'expense') {
-      onAddExpense(numAmount, category, description || 'Expense');
+      await onAddExpense(numAmount, category, description || 'Expense');
     } else {
-      const result = onAddIncome(numAmount, description || 'Income');
+      const result = await onAddIncome(numAmount, description || 'Income');
       setShowXPGain(result.xpGained);
       setTimeout(() => setShowXPGain(null), 2000);
     }
