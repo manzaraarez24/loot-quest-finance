@@ -14,7 +14,255 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      equipped_accessories: {
+        Row: {
+          accessory_id: string
+          accessory_type: string
+          equipped_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          accessory_id: string
+          accessory_type: string
+          equipped_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          accessory_id?: string
+          accessory_type?: string
+          equipped_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      inventory: {
+        Row: {
+          id: string
+          item_description: string | null
+          item_icon: string | null
+          item_id: string
+          item_name: string
+          item_rarity: string
+          item_type: string
+          obtained_at: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          item_description?: string | null
+          item_icon?: string | null
+          item_id: string
+          item_name: string
+          item_rarity: string
+          item_type: string
+          obtained_at?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          item_description?: string | null
+          item_icon?: string | null
+          item_id?: string
+          item_name?: string
+          item_rarity?: string
+          item_type?: string
+          obtained_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_stage: string | null
+          created_at: string | null
+          id: string
+          updated_at: string | null
+          username: string | null
+        }
+        Insert: {
+          avatar_stage?: string | null
+          created_at?: string | null
+          id: string
+          updated_at?: string | null
+          username?: string | null
+        }
+        Update: {
+          avatar_stage?: string | null
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          category: string | null
+          created_at: string | null
+          description: string
+          id: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          category?: string | null
+          created_at?: string | null
+          description: string
+          id?: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string | null
+          created_at?: string | null
+          description?: string
+          id?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_bosses: {
+        Row: {
+          boss_id: string
+          boss_name: string
+          cost: number
+          created_at: string | null
+          current_hp: number
+          defeated_at: string | null
+          due_date: string | null
+          gem_reward: number
+          id: string
+          is_defeated: boolean | null
+          max_hp: number
+          user_id: string
+          xp_reward: number
+        }
+        Insert: {
+          boss_id: string
+          boss_name: string
+          cost: number
+          created_at?: string | null
+          current_hp: number
+          defeated_at?: string | null
+          due_date?: string | null
+          gem_reward: number
+          id?: string
+          is_defeated?: boolean | null
+          max_hp: number
+          user_id: string
+          xp_reward: number
+        }
+        Update: {
+          boss_id?: string
+          boss_name?: string
+          cost?: number
+          created_at?: string | null
+          current_hp?: number
+          defeated_at?: string | null
+          due_date?: string | null
+          gem_reward?: number
+          id?: string
+          is_defeated?: boolean | null
+          max_hp?: number
+          user_id?: string
+          xp_reward?: number
+        }
+        Relationships: []
+      }
+      user_dungeons: {
+        Row: {
+          budget: number
+          category: string
+          created_at: string | null
+          dungeon_id: string
+          dungeon_name: string
+          id: string
+          is_completed: boolean | null
+          monsters_defeated: number | null
+          spent: number | null
+          total_monsters: number
+          user_id: string
+        }
+        Insert: {
+          budget: number
+          category: string
+          created_at?: string | null
+          dungeon_id: string
+          dungeon_name: string
+          id?: string
+          is_completed?: boolean | null
+          monsters_defeated?: number | null
+          spent?: number | null
+          total_monsters: number
+          user_id: string
+        }
+        Update: {
+          budget?: number
+          category?: string
+          created_at?: string | null
+          dungeon_id?: string
+          dungeon_name?: string
+          id?: string
+          is_completed?: boolean | null
+          monsters_defeated?: number | null
+          spent?: number | null
+          total_monsters?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_stats: {
+        Row: {
+          balance: number | null
+          created_at: string | null
+          gems: number | null
+          hp: number | null
+          id: string
+          level: number | null
+          max_hp: number | null
+          monthly_limit: number | null
+          no_spend_streak: number | null
+          updated_at: string | null
+          user_id: string
+          xp: number | null
+        }
+        Insert: {
+          balance?: number | null
+          created_at?: string | null
+          gems?: number | null
+          hp?: number | null
+          id?: string
+          level?: number | null
+          max_hp?: number | null
+          monthly_limit?: number | null
+          no_spend_streak?: number | null
+          updated_at?: string | null
+          user_id: string
+          xp?: number | null
+        }
+        Update: {
+          balance?: number | null
+          created_at?: string | null
+          gems?: number | null
+          hp?: number | null
+          id?: string
+          level?: number | null
+          max_hp?: number | null
+          monthly_limit?: number | null
+          no_spend_streak?: number | null
+          updated_at?: string | null
+          user_id?: string
+          xp?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
