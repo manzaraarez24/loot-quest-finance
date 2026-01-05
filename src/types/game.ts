@@ -95,6 +95,7 @@ export interface Dungeon {
   totalBudget: number;
   spent: number;
   monstersDefeated: number;
+  totalMonsters: number;
   conquered: boolean;
   difficulty: 'easy' | 'medium' | 'hard' | 'nightmare';
 }
@@ -276,9 +277,9 @@ export const EXPENSE_CATEGORIES = [
 
 // Dungeon templates based on expense categories
 export const DUNGEON_TEMPLATES = [
-  { id: 'food_dungeon', name: 'Tavern of Temptation', icon: '🍔', category: 'food', difficulty: 'medium' as const },
-  { id: 'transport_dungeon', name: 'Road of Ruin', icon: '🚗', category: 'transport', difficulty: 'easy' as const },
-  { id: 'entertainment_dungeon', name: 'Arcade Abyss', icon: '🎮', category: 'entertainment', difficulty: 'hard' as const },
-  { id: 'shopping_dungeon', name: 'Mall of Madness', icon: '🛍️', category: 'shopping', difficulty: 'nightmare' as const },
-  { id: 'bills_dungeon', name: 'Tower of Payments', icon: '📄', category: 'bills', difficulty: 'medium' as const },
+  { id: 'food_dungeon', name: 'Tavern of Temptation', icon: '🍔', category: 'food', difficulty: 'medium' as const, totalMonsters: 10 },
+  { id: 'transport_dungeon', name: 'Road of Ruin', icon: '🚗', category: 'transport', difficulty: 'easy' as const, totalMonsters: 5 },
+  { id: 'entertainment_dungeon', name: 'Arcade Abyss', icon: '🎮', category: 'entertainment', difficulty: 'hard' as const, totalMonsters: 15 },
+  { id: 'shopping_dungeon', name: 'Mall of Madness', icon: '🛍️', category: 'shopping', difficulty: 'nightmare' as const, totalMonsters: 20 },
+  { id: 'bills_dungeon', name: 'Tower of Payments', icon: '📄', category: 'bills', difficulty: 'medium' as const, totalMonsters: 8 },
 ];
