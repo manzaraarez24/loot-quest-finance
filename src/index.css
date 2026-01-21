@@ -80,6 +80,43 @@
 }
 
 @layer components {
+  /* Liquid Glass Effects */
+  .liquid-glass {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--background) / 0.6) 0%,
+      hsl(var(--background) / 0.4) 50%,
+      hsl(var(--background) / 0.6) 100%
+    );
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid hsl(0 0% 100% / 0.1);
+  }
+
+  .liquid-glass-strong {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--background) / 0.85) 0%,
+      hsl(var(--background) / 0.75) 50%,
+      hsl(var(--background) / 0.85) 100%
+    );
+    backdrop-filter: blur(30px) saturate(200%);
+    -webkit-backdrop-filter: blur(30px) saturate(200%);
+    border: 1px solid hsl(0 0% 100% / 0.15);
+  }
+
+  .liquid-glass-subtle {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--background) / 0.3) 0%,
+      hsl(var(--background) / 0.2) 50%,
+      hsl(var(--background) / 0.3) 100%
+    );
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+    border: 1px solid hsl(0 0% 100% / 0.05);
+  }
+
   .neon-text-green {
     text-shadow: 0 0 10px hsl(var(--neon-green) / 0.8),
                  0 0 20px hsl(var(--neon-green) / 0.6),
@@ -131,6 +168,15 @@
 
   .glass-panel {
     @apply bg-card/80 backdrop-blur-md border border-border/50 rounded-lg;
+  }
+
+  /* Safe area padding for mobile */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
   }
 }
 
