@@ -627,6 +627,24 @@ export function useGameData() {
     }
   }, [user, equippedAccessories]);
 
+  const updateBudget = useCallback(async (newBudget: number) => {
+    if (!user) return;
+
+    const newHP = calculateHP(stats.balance, newBudget);
+
+    await supabase
+      .from('user_stats')
+      .update({ monthly_limit: newBudget, hp: newHP })
+      .eq('user_id', user.id);
+
+    setStats(prev => ({ ...prev, monthlyLimit: newBudget, hp: newHP }));
+
+    toast({
+      title: '💰 Budget Updated',
+      description: `Your monthly budget is now $${newBudget.toLocaleString()}`,
+    });
+  }, [user, stats.balance, calculateHP, toast]);
+
   // Convert to format expected by components
   const formattedStats = {
     currentBalance: stats.balance,
@@ -697,5 +715,6 @@ export function useGameData() {
     getXPProgress,
     defeatBoss,
     equipAccessory,
+    updateBudget,
   };
 }
