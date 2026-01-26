@@ -1,7 +1,11 @@
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { GlassCard } from './GlassCard';
-import { LogOut, Shield, User, Package, ChevronRight } from 'lucide-react';
+import { LogOut, Shield, User, Package, ChevronRight, Settings, DollarSign, Target, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
 
 interface ProfileTabProps {
   email: string;
@@ -11,12 +15,45 @@ interface ProfileTabProps {
     gems: number;
     streakDays: number;
   };
+  budgetSettings?: {
+    monthlyLimit: number;
+    expectedExpenses: number;
+  };
   inventoryCount: number;
   onSignOut: () => void;
+  onUpdateBudgetSettings?: (budget: number, expectedExpenses: number) => Promise<void>;
 }
 
-export function ProfileTab({ email, stats, inventoryCount, onSignOut }: ProfileTabProps) {
+export function ProfileTab({ 
+  email, 
+  stats, 
+  budgetSettings,
+  inventoryCount, 
+  onSignOut,
+  onUpdateBudgetSettings,
+}: ProfileTabProps) {
   const username = email.split('@')[0];
+  const [isEditingBudget, setIsEditingBudget] = useState(false);
+  const [editBudget, setEditBudget] = useState(budgetSettings?.monthlyLimit || 2000);
+  const [editExpenses, setEditExpenses] = useState(budgetSettings?.expectedExpenses || 1500);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const handleSaveBudget = async () => {
+    if (!onUpdateBudgetSettings) return;
+    setIsUpdating(true);
+    try {
+      await onUpdateBudgetSettings(editBudget, editExpenses);
+      setIsEditingBudget(false);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditBudget(budgetSettings?.monthlyLimit || 2000);
+    setEditExpenses(budgetSettings?.expectedExpenses || 1500);
+    setIsEditingBudget(false);
+  };
 
   return (
     <div className="space-y-4 pb-24">
@@ -44,6 +81,151 @@ export function ProfileTab({ email, stats, inventoryCount, onSignOut }: ProfileT
             </div>
           </div>
         </div>
+      </GlassCard>
+
+      {/* Budget Settings */}
+      <GlassCard
+        glow="green"
+        className="p-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-display text-sm font-bold text-muted-foreground uppercase tracking-wider">
+            Budget Settings
+          </h3>
+          {!isEditingBudget && (
+            <button
+              onClick={() => setIsEditingBudget(true)}
+              className="p-2 rounded-full hover:bg-white/10 transition-colors"
+            >
+              <Settings className="w-4 h-4 text-muted-foreground" />
+            </button>
+          )}
+        </div>
+
+        <AnimatePresence mode="wait">
+          {isEditingBudget ? (
+            <motion.div
+              key="editing"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="space-y-5"
+            >
+              {/* Budget Slider */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs text-muted-foreground flex items-center gap-2">
+                    <DollarSign className="w-3.5 h-3.5" />
+                    Monthly Budget
+                  </Label>
+                  <span className="font-display text-lg font-bold text-neon-green">
+                    ${editBudget.toLocaleString()}
+                  </span>
+                </div>
+                <Slider
+                  value={[editBudget]}
+                  onValueChange={(value) => setEditBudget(value[0])}
+                  min={500}
+                  max={10000}
+                  step={100}
+                  className="py-2"
+                />
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    type="number"
+                    value={editBudget}
+                    onChange={(e) => setEditBudget(Math.max(100, parseInt(e.target.value) || 0))}
+                    className="pl-8 bg-white/5 border-white/20 rounded-xl h-10"
+                  />
+                </div>
+              </div>
+
+              {/* Expected Expenses Slider */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs text-muted-foreground flex items-center gap-2">
+                    <Target className="w-3.5 h-3.5" />
+                    Expected Expenses
+                  </Label>
+                  <span className="font-display text-lg font-bold text-neon-pink">
+                    ${editExpenses.toLocaleString()}
+                  </span>
+                </div>
+                <Slider
+                  value={[editExpenses]}
+                  onValueChange={(value) => setEditExpenses(value[0])}
+                  min={100}
+                  max={editBudget}
+                  step={50}
+                  className="py-2"
+                />
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    type="number"
+                    value={editExpenses}
+                    onChange={(e) => setEditExpenses(Math.max(0, parseInt(e.target.value) || 0))}
+                    className="pl-8 bg-white/5 border-white/20 rounded-xl h-10"
+                  />
+                </div>
+              </div>
+
+              {/* Potential Savings Preview */}
+              <div className="bg-white/5 rounded-xl p-3 text-center">
+                <span className="text-xs text-muted-foreground">Potential Monthly Savings</span>
+                <p className="font-display text-xl font-bold text-neon-cyan">
+                  ${Math.max(0, editBudget - editExpenses).toLocaleString()}
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3">
+                <Button
+                  variant="ghost"
+                  onClick={handleCancelEdit}
+                  className="flex-1 h-12 rounded-xl border border-white/20"
+                >
+                  <X className="w-4 h-4 mr-2" />
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSaveBudget}
+                  disabled={isUpdating}
+                  className="flex-1 h-12 rounded-xl bg-gradient-to-r from-neon-green to-neon-cyan text-background font-display font-bold"
+                >
+                  <Check className="w-4 h-4 mr-2" />
+                  {isUpdating ? 'Saving...' : 'Save'}
+                </Button>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="display"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="grid grid-cols-2 gap-3"
+            >
+              <div className="bg-white/5 rounded-2xl p-4 text-center">
+                <DollarSign className="w-5 h-5 text-neon-green mx-auto mb-1" />
+                <p className="font-display text-xl font-bold text-foreground">
+                  ${(budgetSettings?.monthlyLimit || 2000).toLocaleString()}
+                </p>
+                <p className="text-xs text-muted-foreground">Monthly Budget</p>
+              </div>
+              <div className="bg-white/5 rounded-2xl p-4 text-center">
+                <Target className="w-5 h-5 text-neon-pink mx-auto mb-1" />
+                <p className="font-display text-xl font-bold text-foreground">
+                  ${(budgetSettings?.expectedExpenses || 1500).toLocaleString()}
+                </p>
+                <p className="text-xs text-muted-foreground">Expected Expenses</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </GlassCard>
 
       {/* Stats Overview */}

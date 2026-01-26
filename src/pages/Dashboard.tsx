@@ -32,6 +32,7 @@ const Dashboard = () => {
     defeatBoss,
     equipAccessory,
     updateBudget,
+    updateBudgetSettings,
   } = useGameData();
 
   const [activeTab, setActiveTab] = useState('home');
@@ -173,8 +174,13 @@ const Dashboard = () => {
                   gems: stats.gems,
                   streakDays: stats.streakDays,
                 }}
+                budgetSettings={{
+                  monthlyLimit: stats.monthlyLimit,
+                  expectedExpenses: stats.expectedExpenses,
+                }}
                 inventoryCount={inventory.length}
                 onSignOut={signOut}
+                onUpdateBudgetSettings={updateBudgetSettings}
               />
             </motion.div>
           )}

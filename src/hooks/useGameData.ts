@@ -14,6 +14,7 @@ import {
 interface UserStats {
   balance: number;
   monthlyLimit: number;
+  expectedExpenses: number;
   hp: number;
   maxHp: number;
   xp: number;
@@ -69,6 +70,7 @@ interface InventoryItem {
 const DEFAULT_STATS: UserStats = {
   balance: 1000,
   monthlyLimit: 2000,
+  expectedExpenses: 1500,
   hp: 100,
   maxHp: 100,
   xp: 0,
@@ -115,6 +117,7 @@ export function useGameData() {
           setStats({
             balance: Number(statsData.balance),
             monthlyLimit: Number(statsData.monthly_limit),
+            expectedExpenses: Number(statsData.expected_expenses || 0),
             hp: statsData.hp,
             maxHp: statsData.max_hp,
             xp: statsData.xp,
@@ -645,10 +648,38 @@ export function useGameData() {
     });
   }, [user, stats.balance, calculateHP, toast]);
 
+  const updateBudgetSettings = useCallback(async (newBudget: number, newExpectedExpenses: number) => {
+    if (!user) return;
+
+    const newHP = calculateHP(stats.balance, newBudget);
+
+    await supabase
+      .from('user_stats')
+      .update({ 
+        monthly_limit: newBudget, 
+        expected_expenses: newExpectedExpenses,
+        hp: newHP 
+      })
+      .eq('user_id', user.id);
+
+    setStats(prev => ({ 
+      ...prev, 
+      monthlyLimit: newBudget, 
+      expectedExpenses: newExpectedExpenses,
+      hp: newHP 
+    }));
+
+    toast({
+      title: '⚙️ Budget Settings Updated',
+      description: `Budget: $${newBudget.toLocaleString()} | Target: $${newExpectedExpenses.toLocaleString()}`,
+    });
+  }, [user, stats.balance, calculateHP, toast]);
+
   // Convert to format expected by components
   const formattedStats = {
     currentBalance: stats.balance,
     monthlyLimit: stats.monthlyLimit,
+    expectedExpenses: stats.expectedExpenses,
     hp: stats.hp,
     xp: stats.xp,
     level: stats.level,
@@ -716,5 +747,6 @@ export function useGameData() {
     defeatBoss,
     equipAccessory,
     updateBudget,
+    updateBudgetSettings,
   };
 }
