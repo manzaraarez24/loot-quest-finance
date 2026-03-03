@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Settings, DollarSign, Check, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 interface BudgetEditorProps {
   currentBudget: number;
@@ -12,6 +13,7 @@ interface BudgetEditorProps {
 }
 
 export function BudgetEditor({ currentBudget, onUpdateBudget, balance, hp }: BudgetEditorProps) {
+  const { currency } = useCurrency();
   const [isEditing, setIsEditing] = useState(false);
   const [newBudget, setNewBudget] = useState(currentBudget.toString());
   const [isUpdating, setIsUpdating] = useState(false);
@@ -19,7 +21,7 @@ export function BudgetEditor({ currentBudget, onUpdateBudget, balance, hp }: Bud
   const handleSave = async () => {
     const budget = parseFloat(newBudget);
     if (isNaN(budget) || budget <= 0) return;
-    
+
     setIsUpdating(true);
     try {
       await onUpdateBudget(budget);
@@ -44,7 +46,7 @@ export function BudgetEditor({ currentBudget, onUpdateBudget, balance, hp }: Bud
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-muted-foreground">Monthly Budget</span>
-          <button 
+          <button
             onClick={() => {
               setNewBudget(currentBudget.toString());
               setIsEditing(true);
@@ -64,7 +66,7 @@ export function BudgetEditor({ currentBudget, onUpdateBudget, balance, hp }: Bud
               className="flex items-center gap-2"
             >
               <div className="relative">
-                <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground">{currency}</span>
                 <Input
                   type="number"
                   value={newBudget}
@@ -97,7 +99,7 @@ export function BudgetEditor({ currentBudget, onUpdateBudget, balance, hp }: Bud
               animate={{ opacity: 1 }}
               className="font-display text-xl font-bold text-foreground"
             >
-              ${currentBudget.toLocaleString()}
+              {currency}{currentBudget.toLocaleString()}
             </motion.span>
           )}
         </AnimatePresence>
@@ -106,9 +108,8 @@ export function BudgetEditor({ currentBudget, onUpdateBudget, balance, hp }: Bud
       {/* Budget Progress Bar */}
       <div className="relative h-4 bg-white/5 rounded-full overflow-hidden">
         <motion.div
-          className={`h-full rounded-full ${
-            hp < 20 ? 'bg-hp-critical' : hp < 50 ? 'bg-hp-warning' : 'bg-hp-healthy'
-          }`}
+          className={`h-full rounded-full ${hp < 20 ? 'bg-hp-critical' : hp < 50 ? 'bg-hp-warning' : 'bg-hp-healthy'
+            }`}
           initial={{ width: 0 }}
           animate={{ width: `${100 - spentPercentage}%` }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
@@ -125,16 +126,15 @@ export function BudgetEditor({ currentBudget, onUpdateBudget, balance, hp }: Bud
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-white/5 rounded-2xl p-3 text-center">
           <span className="text-xs text-muted-foreground block mb-1">Remaining</span>
-          <span className={`font-display text-lg font-bold ${
-            remaining > 0 ? 'text-hp-healthy' : 'text-hp-critical'
-          }`}>
-            ${remaining.toLocaleString()}
+          <span className={`font-display text-lg font-bold ${remaining > 0 ? 'text-hp-healthy' : 'text-hp-critical'
+            }`}>
+            {currency}{remaining.toLocaleString()}
           </span>
         </div>
         <div className="bg-white/5 rounded-2xl p-3 text-center">
           <span className="text-xs text-muted-foreground block mb-1">Spent</span>
           <span className="font-display text-lg font-bold text-neon-pink">
-            ${spent > 0 ? spent.toLocaleString() : '0'}
+            {currency}{spent > 0 ? spent.toLocaleString() : '0'}
           </span>
         </div>
       </div>

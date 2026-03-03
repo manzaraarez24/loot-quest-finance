@@ -8,9 +8,11 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { toast } from 'sonner';
 
 const Onboarding = () => {
+  const { currency } = useCurrency();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [step, setStep] = useState(1);
@@ -20,7 +22,7 @@ const Onboarding = () => {
 
   const handleComplete = async () => {
     if (!user) return;
-    
+
     setIsSubmitting(true);
     try {
       const { error } = await supabase
@@ -35,7 +37,7 @@ const Onboarding = () => {
         .eq('user_id', user.id);
 
       if (error) throw error;
-      
+
       toast.success('Your quest begins!');
       navigate('/', { replace: true });
     } catch (error) {
@@ -81,9 +83,8 @@ const Onboarding = () => {
           {[1, 2].map((s) => (
             <motion.div
               key={s}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                s <= step ? 'w-12 bg-neon-green' : 'w-8 bg-white/20'
-              }`}
+              className={`h-2 rounded-full transition-all duration-300 ${s <= step ? 'w-12 bg-neon-green' : 'w-8 bg-white/20'
+                }`}
               animate={{ scale: s === step ? [1, 1.1, 1] : 1 }}
               transition={{ duration: 0.5 }}
             />
@@ -111,10 +112,10 @@ const Onboarding = () => {
             <div className="space-y-4">
               <div className="text-center">
                 <span className="font-display text-4xl font-black text-neon-green">
-                  ${budget.toLocaleString()}
+                  {currency}{budget.toLocaleString()}
                 </span>
               </div>
-              
+
               <Slider
                 value={[budget]}
                 onValueChange={(value) => setBudget(value[0])}
@@ -125,8 +126,8 @@ const Onboarding = () => {
               />
 
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>$500</span>
-                <span>$10,000</span>
+                <span>{currency}500</span>
+                <span>{currency}10,000</span>
               </div>
 
               <div className="relative">
@@ -134,7 +135,7 @@ const Onboarding = () => {
                   Or enter custom amount
                 </Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">{currency}</span>
                   <Input
                     type="number"
                     value={budget}
@@ -176,15 +177,15 @@ const Onboarding = () => {
             <div className="space-y-4">
               <div className="text-center">
                 <span className="font-display text-4xl font-black text-neon-pink">
-                  ${expectedExpenses.toLocaleString()}
+                  {currency}{expectedExpenses.toLocaleString()}
                 </span>
                 <p className="text-xs text-muted-foreground mt-2">
-                  {expectedExpenses < budget 
-                    ? `You'll save $${(budget - expectedExpenses).toLocaleString()} this month!`
+                  {expectedExpenses < budget
+                    ? `You'll save ${currency}${(budget - expectedExpenses).toLocaleString()} this month!`
                     : 'Try to keep it under budget!'}
                 </p>
               </div>
-              
+
               <Slider
                 value={[expectedExpenses]}
                 onValueChange={(value) => setExpectedExpenses(value[0])}
@@ -195,8 +196,8 @@ const Onboarding = () => {
               />
 
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>$100</span>
-                <span>${budget.toLocaleString()}</span>
+                <span>{currency}100</span>
+                <span>{currency}{budget.toLocaleString()}</span>
               </div>
 
               <div className="relative">
@@ -204,7 +205,7 @@ const Onboarding = () => {
                   Or enter custom amount
                 </Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">{currency}</span>
                   <Input
                     type="number"
                     value={expectedExpenses}
@@ -219,17 +220,17 @@ const Onboarding = () => {
             <div className="bg-white/5 rounded-2xl p-4 space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Monthly Budget</span>
-                <span className="font-bold text-neon-green">${budget.toLocaleString()}</span>
+                <span className="font-bold text-neon-green">{currency}{budget.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Expected Expenses</span>
-                <span className="font-bold text-neon-pink">${expectedExpenses.toLocaleString()}</span>
+                <span className="font-bold text-neon-pink">{currency}{expectedExpenses.toLocaleString()}</span>
               </div>
               <div className="border-t border-white/10 pt-2 mt-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Potential Savings</span>
                   <span className="font-bold text-neon-cyan">
-                    ${Math.max(0, budget - expectedExpenses).toLocaleString()}
+                    {currency}{Math.max(0, budget - expectedExpenses).toLocaleString()}
                   </span>
                 </div>
               </div>

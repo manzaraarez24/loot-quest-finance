@@ -20,6 +20,7 @@ import { LootBoxResult } from '@/types/game';
 import { Wallet, Shield, LogOut, Loader2 } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
+import { ProfileTab } from '@/components/mobile/ProfileTab';
 
 const Dashboard = () => {
   const { signOut, user } = useAuth();
@@ -38,6 +39,8 @@ const Dashboard = () => {
     getXPProgress,
     defeatBoss,
     equipAccessory,
+    updateBudget,
+    updateBudgetSettings,
     addBoss,
     updateBoss,
     deleteBoss,
@@ -146,6 +149,9 @@ const Dashboard = () => {
             </TabsTrigger>
             <TabsTrigger value="oracle" className="font-display text-sm">
               🔮 Oracle
+            </TabsTrigger>
+            <TabsTrigger value="profile" className="font-display text-sm">
+              👤 Profile
             </TabsTrigger>
           </TabsList>
 
@@ -321,6 +327,31 @@ const Dashboard = () => {
                 <RegretCalculator />
               </motion.section>
             </div>
+          </TabsContent>
+
+          {/* Profile Tab */}
+          <TabsContent value="profile">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+            >
+              <ProfileTab
+                email={user?.email || ''}
+                stats={{
+                  level: stats.level,
+                  xp: stats.xp,
+                  gems: stats.gems,
+                  streakDays: stats.streakDays,
+                }}
+                budgetSettings={{
+                  monthlyLimit: stats.monthlyLimit,
+                  expectedExpenses: stats.expectedExpenses,
+                }}
+                inventoryCount={inventory.length}
+                onSignOut={signOut}
+                onUpdateBudgetSettings={updateBudgetSettings}
+              />
+            </motion.div>
           </TabsContent>
         </Tabs>
       </div>
