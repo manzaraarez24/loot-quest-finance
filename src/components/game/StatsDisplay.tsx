@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Flame, Gem, TrendingUp } from 'lucide-react';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 interface StatsDisplayProps {
   streakDays: number;
@@ -8,6 +9,7 @@ interface StatsDisplayProps {
 }
 
 export function StatsDisplay({ streakDays, gems, totalSaved }: StatsDisplayProps) {
+  const { currency } = useCurrency();
   const stats = [
     {
       icon: Flame,
@@ -28,7 +30,7 @@ export function StatsDisplay({ streakDays, gems, totalSaved }: StatsDisplayProps
     {
       icon: TrendingUp,
       label: 'Saved',
-      value: `$${totalSaved.toLocaleString()}`,
+      value: `${currency}${totalSaved.toLocaleString()}`,
       color: 'text-hp-healthy',
       bgColor: 'bg-hp-healthy/10',
       borderColor: 'border-hp-healthy/30',

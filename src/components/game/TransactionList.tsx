@@ -1,12 +1,14 @@
 import { motion } from 'framer-motion';
 import { Transaction, EXPENSE_CATEGORIES } from '@/types/game';
 import { ArrowDownRight, ArrowUpRight } from 'lucide-react';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 interface TransactionListProps {
   transactions: Transaction[];
 }
 
 export function TransactionList({ transactions }: TransactionListProps) {
+  const { currency } = useCurrency();
   const getCategoryInfo = (categoryId: string) => {
     return EXPENSE_CATEGORIES.find((c) => c.id === categoryId) || EXPENSE_CATEGORIES[5];
   };
@@ -34,9 +36,8 @@ export function TransactionList({ transactions }: TransactionListProps) {
                 transition={{ delay: index * 0.05 }}
               >
                 <div
-                  className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                    tx.type === 'expense' ? 'bg-hp-critical/20' : 'bg-hp-healthy/20'
-                  }`}
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center ${tx.type === 'expense' ? 'bg-hp-critical/20' : 'bg-hp-healthy/20'
+                    }`}
                 >
                   {tx.type === 'expense' ? (
                     <span className="text-lg">{category.icon}</span>
@@ -55,7 +56,7 @@ export function TransactionList({ transactions }: TransactionListProps) {
                 </div>
 
                 <div className={`font-display font-bold ${tx.type === 'expense' ? 'text-hp-critical' : 'text-hp-healthy'}`}>
-                  {tx.type === 'expense' ? '-' : '+'}${tx.amount.toFixed(2)}
+                  {tx.type === 'expense' ? '-' : '+'}{currency}{tx.amount.toFixed(2)}
                 </div>
               </motion.div>
             );

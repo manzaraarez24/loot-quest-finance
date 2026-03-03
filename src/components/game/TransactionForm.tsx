@@ -3,7 +3,8 @@ import { motion } from 'framer-motion';
 import { EXPENSE_CATEGORIES } from '@/types/game';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Minus, Plus, DollarSign } from 'lucide-react';
+import { Minus, Plus } from 'lucide-react';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 interface TransactionFormProps {
   onAddExpense: (amount: number, category: string, description: string) => void | Promise<void>;
@@ -11,6 +12,7 @@ interface TransactionFormProps {
 }
 
 export function TransactionForm({ onAddExpense, onAddIncome }: TransactionFormProps) {
+  const { currency } = useCurrency();
   const [type, setType] = useState<'expense' | 'income'>('expense');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('food');
@@ -43,22 +45,20 @@ export function TransactionForm({ onAddExpense, onAddIncome }: TransactionFormPr
       <div className="flex gap-2 mb-4">
         <button
           onClick={() => setType('expense')}
-          className={`flex-1 py-3 px-4 rounded-lg font-display text-sm transition-all flex items-center justify-center gap-2 ${
-            type === 'expense'
+          className={`flex-1 py-3 px-4 rounded-lg font-display text-sm transition-all flex items-center justify-center gap-2 ${type === 'expense'
               ? 'bg-hp-critical/20 text-hp-critical border border-hp-critical/50'
               : 'bg-muted text-muted-foreground border border-transparent hover:border-border'
-          }`}
+            }`}
         >
           <Minus className="w-4 h-4" />
           Expense
         </button>
         <button
           onClick={() => setType('income')}
-          className={`flex-1 py-3 px-4 rounded-lg font-display text-sm transition-all flex items-center justify-center gap-2 ${
-            type === 'income'
+          className={`flex-1 py-3 px-4 rounded-lg font-display text-sm transition-all flex items-center justify-center gap-2 ${type === 'income'
               ? 'bg-hp-healthy/20 text-hp-healthy border border-hp-healthy/50'
               : 'bg-muted text-muted-foreground border border-transparent hover:border-border'
-          }`}
+            }`}
         >
           <Plus className="w-4 h-4" />
           Income
@@ -67,7 +67,7 @@ export function TransactionForm({ onAddExpense, onAddIncome }: TransactionFormPr
 
       {/* Amount input */}
       <div className="relative mb-4">
-        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-display font-bold">{currency}</span>
         <Input
           type="number"
           placeholder="0.00"
@@ -86,11 +86,10 @@ export function TransactionForm({ onAddExpense, onAddIncome }: TransactionFormPr
               <button
                 key={cat.id}
                 onClick={() => setCategory(cat.id)}
-                className={`p-3 rounded-lg text-center transition-all ${
-                  category === cat.id
+                className={`p-3 rounded-lg text-center transition-all ${category === cat.id
                     ? 'bg-neon-pink/20 border border-neon-pink/50'
                     : 'bg-muted border border-transparent hover:border-border'
-                }`}
+                  }`}
               >
                 <span className="text-xl block mb-1">{cat.icon}</span>
                 <span className="text-[10px] text-muted-foreground">{cat.name}</span>
@@ -112,11 +111,10 @@ export function TransactionForm({ onAddExpense, onAddIncome }: TransactionFormPr
       <div className="relative">
         <Button
           onClick={handleSubmit}
-          className={`w-full font-display ${
-            type === 'expense'
+          className={`w-full font-display ${type === 'expense'
               ? 'bg-hp-critical hover:bg-hp-critical/80 text-background'
               : 'bg-hp-healthy hover:bg-hp-healthy/80 text-background'
-          }`}
+            }`}
         >
           {type === 'expense' ? '⚔️ Deal Damage' : '💚 Heal HP'}
         </Button>

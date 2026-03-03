@@ -1,11 +1,13 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
-import { Calculator, DollarSign, Clock, TrendingUp } from 'lucide-react';
+import { Calculator, Clock, TrendingUp } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { RegretCalculation } from '@/types/game';
 
 export function RegretCalculator() {
+  const { currency } = useCurrency();
   const [amount, setAmount] = useState<string>('');
   const [result, setResult] = useState<RegretCalculation | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
@@ -15,7 +17,7 @@ export function RegretCalculator() {
     if (isNaN(numAmount) || numAmount <= 0) return;
 
     setIsCalculating(true);
-    
+
     setTimeout(() => {
       // Assume 7% annual return compounded
       const yearsInvested = 10;
@@ -37,7 +39,7 @@ export function RegretCalculator() {
         projectedValue,
         alternativeUses: alternativeUses.filter(a => a.quantity > 0).slice(0, 4),
       });
-      
+
       setIsCalculating(false);
     }, 800);
   };
@@ -74,7 +76,7 @@ export function RegretCalculator() {
             className="space-y-4"
           >
             <div className="relative">
-              <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-display font-bold">{currency}</span>
               <Input
                 type="number"
                 placeholder="Enter amount..."
@@ -83,7 +85,7 @@ export function RegretCalculator() {
                 className="pl-8 bg-muted/50 border-border/50"
               />
             </div>
-            
+
             <Button
               onClick={calculateRegret}
               disabled={!amount || isCalculating}
@@ -117,7 +119,7 @@ export function RegretCalculator() {
               <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-center">
                 <p className="text-xs text-muted-foreground mb-1">Now</p>
                 <p className="text-xl font-display font-bold text-foreground">
-                  ${result.originalAmount.toFixed(2)}
+                  {currency}{result.originalAmount.toFixed(2)}
                 </p>
               </div>
               <div className="p-3 rounded-lg bg-neon-green/10 border border-neon-green/50 text-center">
@@ -128,7 +130,7 @@ export function RegretCalculator() {
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.3, type: 'spring' }}
                 >
-                  ${result.projectedValue.toFixed(2)}
+                  {currency}{result.projectedValue.toFixed(2)}
                 </motion.p>
               </div>
             </div>

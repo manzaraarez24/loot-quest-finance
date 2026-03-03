@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useMemo } from 'react';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 interface HPBarProps {
   current: number;
@@ -8,9 +9,10 @@ interface HPBarProps {
 }
 
 export function HPBar({ current, max, hp }: HPBarProps) {
+  const { currency } = useCurrency();
   const isCritical = hp < 20;
   const isWarning = hp >= 20 && hp < 50;
-  
+
   const barColor = useMemo(() => {
     if (isCritical) return 'bg-hp-critical';
     if (isWarning) return 'bg-hp-warning';
@@ -28,7 +30,7 @@ export function HPBar({ current, max, hp }: HPBarProps) {
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <span className="font-display text-sm text-muted-foreground">HP</span>
-          <motion.span 
+          <motion.span
             className={`font-display text-2xl font-bold ${isCritical ? 'text-hp-critical neon-text-pink' : isWarning ? 'text-hp-warning' : 'text-hp-healthy neon-text-green'}`}
             animate={isCritical ? { scale: [1, 1.1, 1] } : {}}
             transition={{ duration: 0.5, repeat: isCritical ? Infinity : 0 }}
@@ -37,16 +39,16 @@ export function HPBar({ current, max, hp }: HPBarProps) {
           </motion.span>
         </div>
         <span className="font-body text-sm text-muted-foreground">
-          ${current.toLocaleString()} / ${max.toLocaleString()}
+          {currency}{current.toLocaleString()} / {currency}{max.toLocaleString()}
         </span>
       </div>
-      
+
       <div className="relative h-8 bg-muted rounded-full overflow-hidden border border-border">
         {/* Background scanlines */}
         <div className="absolute inset-0 opacity-20">
           <div className="h-full w-full bg-gradient-to-r from-transparent via-foreground/5 to-transparent" />
         </div>
-        
+
         {/* HP Bar fill */}
         <motion.div
           className={`h-full ${barColor} ${glowColor} ${isCritical ? 'animate-pulse-glow' : ''}`}
@@ -56,7 +58,7 @@ export function HPBar({ current, max, hp }: HPBarProps) {
         >
           {/* Shine effect */}
           <div className="absolute inset-0 bg-gradient-to-b from-foreground/20 to-transparent" />
-          
+
           {/* Moving highlight */}
           <motion.div
             className="absolute inset-0 bg-gradient-to-r from-transparent via-foreground/30 to-transparent"

@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { SpendingProphecy as ProphecyType, Transaction, UserStats } from '@/types/game';
 import { useMemo } from 'react';
 import { Sparkles, TrendingUp, TrendingDown, Minus, AlertTriangle } from 'lucide-react';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 interface SpendingProphecyProps {
   stats: UserStats;
@@ -9,28 +10,29 @@ interface SpendingProphecyProps {
 }
 
 export function SpendingProphecyCard({ stats, transactions }: SpendingProphecyProps) {
+  const { currency } = useCurrency();
   const prophecy = useMemo((): ProphecyType => {
     // Calculate daily spending average
     const expenses = transactions.filter(t => t.type === 'expense');
     const totalExpenses = expenses.reduce((sum, t) => sum + t.amount, 0);
     const avgDailyExpense = expenses.length > 0 ? totalExpenses / Math.max(expenses.length, 1) : 0;
-    
+
     // Days remaining in month (simplified - assume 30 day month)
     const today = new Date();
     const daysRemaining = 30 - today.getDate();
-    
+
     // Predicted end balance
     const predictedSpending = avgDailyExpense * daysRemaining;
     const predictedEndBalance = stats.currentBalance - predictedSpending;
-    
+
     // Determine trend
     let trend: ProphecyType['trend'];
     let confidence: number;
     let message: string;
     let recommendations: string[];
-    
+
     const balanceRatio = predictedEndBalance / stats.monthlyLimit;
-    
+
     if (balanceRatio >= 0.3) {
       trend = 'improving';
       confidence = 85;
@@ -68,7 +70,7 @@ export function SpendingProphecyCard({ stats, transactions }: SpendingProphecyPr
         "Contact creditors if needed"
       ];
     }
-    
+
     return {
       predictedEndBalance: Math.max(predictedEndBalance, -1000),
       confidence,
@@ -133,7 +135,7 @@ export function SpendingProphecyCard({ stats, transactions }: SpendingProphecyPr
         <div className="flex justify-center mb-4">
           <motion.div
             className="relative w-24 h-24 rounded-full bg-gradient-to-br from-neon-purple/30 to-neon-cyan/20 border-2 border-neon-purple/50 flex items-center justify-center"
-            animate={{ 
+            animate={{
               boxShadow: [
                 '0 0 20px hsl(var(--neon-purple)/0.3)',
                 '0 0 40px hsl(var(--neon-purple)/0.5)',
@@ -143,7 +145,7 @@ export function SpendingProphecyCard({ stats, transactions }: SpendingProphecyPr
             transition={{ duration: 2, repeat: Infinity }}
           >
             <span className="text-3xl">🔮</span>
-            
+
             {/* Floating particles */}
             {[...Array(3)].map((_, i) => (
               <motion.div
@@ -168,13 +170,12 @@ export function SpendingProphecyCard({ stats, transactions }: SpendingProphecyPr
         <div className="text-center mb-4">
           <p className="text-sm text-muted-foreground mb-1">End of Month Balance</p>
           <motion.p
-            className={`text-3xl font-display font-bold ${
-              prophecy.predictedEndBalance >= 0 ? 'text-neon-green' : 'text-hp-critical'
-            }`}
+            className={`text-3xl font-display font-bold ${prophecy.predictedEndBalance >= 0 ? 'text-neon-green' : 'text-hp-critical'
+              }`}
             initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}
           >
-            ${prophecy.predictedEndBalance.toFixed(0)}
+            {currency}{prophecy.predictedEndBalance.toFixed(0)}
           </motion.p>
           <p className="text-xs text-muted-foreground mt-1">
             {prophecy.confidence}% confidence
@@ -209,6 +210,6 @@ export function SpendingProphecyCard({ stats, transactions }: SpendingProphecyPr
           </ul>
         </div>
       </div>
-    </motion.div>
+    </motion.div >
   );
 }

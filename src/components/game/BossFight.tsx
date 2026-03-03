@@ -1,17 +1,25 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Boss } from '@/types/game';
 import { useState } from 'react';
-import { Sword, Shield, Trophy, Clock, Zap } from 'lucide-react';
+import { Sword, Shield, Trophy, Clock, Zap, Plus, Edit2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useCurrency } from '@/contexts/CurrencyContext';
+import { BossFormDialog } from './BossFormDialog';
 
 interface BossFightProps {
   bosses: Boss[];
   onDefeatBoss: (bossId: string, amount: number) => void;
+  onAddBoss: (name: string, cost: number, dueDateStr: string) => void;
+  onUpdateBoss: (id: string, name: string, cost: number, dueDateStr: string) => void;
+  onDeleteBoss: (id: string) => void;
 }
 
-export function BossFight({ bosses, onDefeatBoss }: BossFightProps) {
+export function BossFight({ bosses, onDefeatBoss, onAddBoss, onUpdateBoss, onDeleteBoss }: BossFightProps) {
+  const { currency } = useCurrency();
   const [selectedBoss, setSelectedBoss] = useState<Boss | null>(null);
   const [isAttacking, setIsAttacking] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingBoss, setEditingBoss] = useState<Boss | null>(null);
 
   const activeBosses = bosses.filter(b => !b.defeated);
   const defeatedBosses = bosses.filter(b => b.defeated);
@@ -46,11 +54,25 @@ export function BossFight({ bosses, onDefeatBoss }: BossFightProps) {
         <h3 className="font-display text-lg font-bold text-foreground">
           Boss Fights
         </h3>
-        {activeBosses.length > 0 && (
-          <span className="ml-auto px-2 py-0.5 text-xs font-bold rounded-full bg-hp-critical/20 text-hp-critical">
-            {activeBosses.length} ACTIVE
-          </span>
-        )}
+        <div className="flex items-center gap-3 ml-auto">
+          {activeBosses.length > 0 && (
+            <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-hp-critical/20 text-hp-critical">
+              {activeBosses.length} ACTIVE
+            </span>
+          )}
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-8 border-neon-cyan/50 text-neon-cyan hover:bg-neon-cyan/10"
+            onClick={() => {
+              setEditingBoss(null);
+              setIsDialogOpen(true);
+            }}
+          >
+            <Plus className="w-4 h-4 mr-1" />
+            Add Boss
+          </Button>
+        </div>
       </div>
 
       {activeBosses.length === 0 ? (
@@ -81,16 +103,41 @@ export function BossFight({ bosses, onDefeatBoss }: BossFightProps) {
                   >
                     {boss.icon}
                   </motion.span>
-                  
+
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <span className="font-display text-sm font-bold">{boss.name}</span>
-                      <span className={`text-xs font-bold ${isUrgent ? 'text-hp-critical' : 'text-muted-foreground'}`}>
-                        <Clock className="w-3 h-3 inline mr-1" />
-                        {daysLeft}d left
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-6 w-6 text-muted-foreground hover:text-neon-cyan"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingBoss(boss);
+                            setIsDialogOpen(true);
+                          }}
+                        >
+                          <Edit2 className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-6 w-6 text-muted-foreground hover:text-hp-critical"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDeleteBoss(boss.id);
+                          }}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                        <span className={`text-xs font-bold ${isUrgent ? 'text-hp-critical' : 'text-muted-foreground'}`}>
+                          <Clock className="w-3 h-3 inline mr-1" />
+                          {daysLeft}d left
+                        </span>
+                      </div>
                     </div>
-                    
+
                     {/* Boss HP Bar */}
                     <div className="mt-2 h-3 bg-muted/50 rounded-full overflow-hidden border border-border/30">
                       <motion.div
@@ -102,7 +149,7 @@ export function BossFight({ bosses, onDefeatBoss }: BossFightProps) {
                     </div>
                     <div className="flex items-center justify-between mt-1">
                       <span className="text-xs text-muted-foreground">
-                        ${boss.currentHP.toFixed(0)} / ${boss.totalHP.toFixed(0)}
+                        {currency}{boss.currentHP.toFixed(0)} / {currency}{boss.totalHP.toFixed(0)}
                       </span>
                       <span className="text-xs text-neon-green">
                         +{boss.reward.xp} XP · +{boss.reward.gems} 💎
@@ -171,6 +218,26 @@ export function BossFight({ bosses, onDefeatBoss }: BossFightProps) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <BossFormDialog
+        isOpen={isDialogOpen}
+        onClose={() => {
+          setIsDialogOpen(false);
+          setEditingBoss(null);
+        }}
+        initialData={editingBoss ? {
+          name: editingBoss.name,
+          cost: editingBoss.totalHP,
+          dueDateStr: editingBoss.dueDate ? (editingBoss.dueDate as Date).toISOString().split('T')[0] : ''
+        } : null}
+        onSave={(data) => {
+          if (editingBoss) {
+            onUpdateBoss(editingBoss.id, data.name, data.cost, data.dueDateStr);
+          } else {
+            onAddBoss(data.name, data.cost, data.dueDateStr);
+          }
+        }}
+      />
     </div>
   );
 }

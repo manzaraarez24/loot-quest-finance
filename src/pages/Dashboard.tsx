@@ -12,6 +12,7 @@ import { NoSpendDayButton } from '@/components/game/NoSpendDayButton';
 import { LootBoxModal } from '@/components/game/LootBoxModal';
 import { SpendingPersonaCard } from '@/components/game/SpendingPersona';
 import { BossFight } from '@/components/game/BossFight';
+import { CurrencySelector } from '@/components/game/CurrencySelector';
 import { DungeonMap } from '@/components/game/DungeonMap';
 import { SpendingProphecyCard } from '@/components/game/SpendingProphecy';
 import { RegretCalculator } from '@/components/game/RegretCalculator';
@@ -37,6 +38,9 @@ const Dashboard = () => {
     getXPProgress,
     defeatBoss,
     equipAccessory,
+    addBoss,
+    updateBoss,
+    deleteBoss,
   } = useGameData();
 
   const [isLootBoxOpen, setIsLootBoxOpen] = useState(false);
@@ -80,7 +84,7 @@ const Dashboard = () => {
       {/* Ambient glow effects */}
       <div className="fixed top-0 left-1/4 w-96 h-96 bg-neon-green/5 rounded-full blur-[100px] pointer-events-none" />
       <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-neon-pink/5 rounded-full blur-[100px] pointer-events-none" />
-      
+
       <div className="relative z-10 container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
         <motion.header
@@ -89,7 +93,9 @@ const Dashboard = () => {
           animate={{ opacity: 1, y: 0 }}
         >
           <div className="flex items-center justify-between mb-2">
-            <div className="flex-1" />
+            <div className="flex-1 flex justify-start">
+              <CurrencySelector />
+            </div>
             <div className="flex items-center justify-center gap-3">
               <Shield className="w-8 h-8 text-neon-green" />
               <h1 className="font-display text-4xl font-black text-foreground tracking-tight">
@@ -99,9 +105,9 @@ const Dashboard = () => {
               <Wallet className="w-8 h-8 text-neon-pink" />
             </div>
             <div className="flex-1 flex justify-end">
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={signOut}
                 className="text-muted-foreground hover:text-neon-pink"
               >
@@ -250,13 +256,12 @@ const Dashboard = () => {
                   inventory.map((item) => (
                     <motion.div
                       key={item.id}
-                      className={`px-4 py-2 rounded-lg border flex items-center gap-2 ${
-                        item.rarity === 'legendary'
-                          ? 'bg-neon-orange/10 border-neon-orange/50'
-                          : item.rarity === 'rare'
+                      className={`px-4 py-2 rounded-lg border flex items-center gap-2 ${item.rarity === 'legendary'
+                        ? 'bg-neon-orange/10 border-neon-orange/50'
+                        : item.rarity === 'rare'
                           ? 'bg-neon-purple/10 border-neon-purple/50'
                           : 'bg-muted/50 border-border'
-                      }`}
+                        }`}
                       whileHover={{ scale: 1.05 }}
                     >
                       <span className="text-xl">{item.icon}</span>
@@ -276,7 +281,13 @@ const Dashboard = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <BossFight bosses={bosses} onDefeatBoss={handleDefeatBoss} />
+                <BossFight
+                  bosses={bosses}
+                  onDefeatBoss={handleDefeatBoss}
+                  onAddBoss={addBoss}
+                  onUpdateBoss={updateBoss}
+                  onDeleteBoss={deleteBoss}
+                />
               </motion.section>
 
               {/* Dungeon Map */}

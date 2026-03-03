@@ -80,7 +80,7 @@ const DEFAULT_STATS: UserStats = {
 export function useGameData() {
   const { user } = useAuth();
   const { toast } = useToast();
-  
+
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<UserStats>(DEFAULT_STATS);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -100,7 +100,7 @@ export function useGameData() {
       setLoading(false);
       return;
     }
-    
+
     const loadData = async () => {
       setLoading(true);
       try {
@@ -110,7 +110,7 @@ export function useGameData() {
           .select('*')
           .eq('user_id', user.id)
           .maybeSingle();
-        
+
         if (statsData) {
           setStats({
             balance: Number(statsData.balance),
@@ -131,7 +131,7 @@ export function useGameData() {
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
           .limit(50);
-        
+
         if (transactionsData) {
           setTransactions(transactionsData.map(t => ({
             id: t.id,
@@ -148,7 +148,7 @@ export function useGameData() {
           .from('inventory')
           .select('*')
           .eq('user_id', user.id);
-        
+
         if (inventoryData) {
           setInventory(inventoryData.map(i => ({
             id: i.id,
@@ -166,7 +166,7 @@ export function useGameData() {
           .from('user_bosses')
           .select('*')
           .eq('user_id', user.id);
-        
+
         if (bossesData && bossesData.length > 0) {
           setBosses(bossesData.map(b => ({
             id: b.id,
@@ -190,7 +190,7 @@ export function useGameData() {
           .from('user_dungeons')
           .select('*')
           .eq('user_id', user.id);
-        
+
         if (dungeonsData && dungeonsData.length > 0) {
           setDungeons(dungeonsData.map(d => ({
             id: d.id,
@@ -213,7 +213,7 @@ export function useGameData() {
           .from('equipped_accessories')
           .select('*')
           .eq('user_id', user.id);
-        
+
         if (accessoriesData) {
           const equipped: typeof equippedAccessories = {};
           accessoriesData.forEach(a => {
@@ -242,7 +242,7 @@ export function useGameData() {
 
   const initializeDefaultBosses = async () => {
     if (!user) return;
-    
+
     const defaultBosses = [
       { boss_id: 'boss_rent', boss_name: 'Landlord Dragon', current_hp: 1200, max_hp: 1200, cost: 1200, xp_reward: 200, gem_reward: 10, due_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
       { boss_id: 'boss_netflix', boss_name: 'Streaming Specter', current_hp: 16, max_hp: 16, cost: 16, xp_reward: 30, gem_reward: 2, due_date: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
@@ -253,7 +253,7 @@ export function useGameData() {
       .from('user_bosses')
       .insert(defaultBosses.map(b => ({ ...b, user_id: user.id })))
       .select();
-    
+
     if (data) {
       setBosses(data.map(b => ({
         id: b.id,
@@ -272,7 +272,7 @@ export function useGameData() {
 
   const initializeDefaultDungeons = async () => {
     if (!user) return;
-    
+
     const defaultDungeons = DUNGEON_TEMPLATES.map(template => ({
       dungeon_id: template.id,
       dungeon_name: template.name,
@@ -289,7 +289,7 @@ export function useGameData() {
       .from('user_dungeons')
       .insert(defaultDungeons)
       .select();
-    
+
     if (data) {
       setDungeons(data.map(d => ({
         id: d.id,
@@ -350,7 +350,7 @@ export function useGameData() {
       .single();
 
     setStats(prev => ({ ...prev, balance: newBalance, hp: newHP }));
-    
+
     if (txData) {
       setTransactions(prev => [{
         id: txData.id,
@@ -367,18 +367,18 @@ export function useGameData() {
     if (dungeon) {
       const newSpent = dungeon.spent + amount;
       const newMonstersDefeated = dungeon.monstersDefeated + 1;
-      
+
       await supabase
         .from('user_dungeons')
-        .update({ 
-          spent: newSpent, 
+        .update({
+          spent: newSpent,
           monsters_defeated: newMonstersDefeated,
           is_completed: newSpent >= dungeon.budget,
         })
         .eq('id', dungeon.id);
 
-      setDungeons(prev => prev.map(d => 
-        d.id === dungeon.id 
+      setDungeons(prev => prev.map(d =>
+        d.id === dungeon.id
           ? { ...d, spent: newSpent, monstersDefeated: newMonstersDefeated, isCompleted: newSpent >= dungeon.budget }
           : d
       ));
@@ -397,8 +397,8 @@ export function useGameData() {
     // Update stats in DB
     await supabase
       .from('user_stats')
-      .update({ 
-        balance: newBalance, 
+      .update({
+        balance: newBalance,
         hp: newHP,
         xp: newXP,
         level: newLevel,
@@ -419,15 +419,15 @@ export function useGameData() {
       .single();
 
     const levelUp = newLevel > stats.level;
-    
-    setStats(prev => ({ 
-      ...prev, 
-      balance: newBalance, 
-      hp: newHP, 
-      xp: newXP, 
+
+    setStats(prev => ({
+      ...prev,
+      balance: newBalance,
+      hp: newHP,
+      xp: newXP,
       level: newLevel,
     }));
-    
+
     if (txData) {
       setTransactions(prev => [{
         id: txData.id,
@@ -452,16 +452,16 @@ export function useGameData() {
   const openLootBox = useCallback(async (): Promise<LootBoxResult> => {
     const roll = Math.random();
     let rarity: 'common' | 'rare' | 'legendary';
-    
+
     if (roll < 0.60) rarity = 'common';
     else if (roll < 0.90) rarity = 'rare';
     else rarity = 'legendary';
 
     const itemsOfRarity = LOOT_POOL.filter(item => item.rarity === rarity);
     const randomItem = itemsOfRarity[Math.floor(Math.random() * itemsOfRarity.length)];
-    
+
     const isNew = !inventory.some(item => item.itemId === randomItem.id);
-    
+
     if (isNew && user) {
       const { data } = await supabase
         .from('inventory')
@@ -503,19 +503,19 @@ export function useGameData() {
 
     await supabase
       .from('user_stats')
-      .update({ 
-        xp: newXP, 
-        level: newLevel, 
+      .update({
+        xp: newXP,
+        level: newLevel,
         no_spend_streak: newStreak,
       })
       .eq('user_id', user.id);
 
     const levelUp = newLevel > stats.level;
-    
-    setStats(prev => ({ 
-      ...prev, 
-      xp: newXP, 
-      level: newLevel, 
+
+    setStats(prev => ({
+      ...prev,
+      xp: newXP,
+      level: newLevel,
       noSpendStreak: newStreak,
     }));
 
@@ -527,7 +527,7 @@ export function useGameData() {
   const defeatBoss = useCallback(async (bossId: string, amount: number) => {
     if (!user) return;
 
-    const boss = bosses.find(b => b.bossId === bossId);
+    const boss = bosses.find(b => b.id === bossId);
     if (!boss || boss.isDefeated) return;
 
     const newBalance = stats.balance - amount;
@@ -539,11 +539,11 @@ export function useGameData() {
     // Update stats
     await supabase
       .from('user_stats')
-      .update({ 
-        balance: newBalance, 
-        hp: newHP, 
-        xp: newXP, 
-        level: newLevel, 
+      .update({
+        balance: newBalance,
+        hp: newHP,
+        xp: newXP,
+        level: newLevel,
         gems: newGems,
       })
       .eq('user_id', user.id);
@@ -565,16 +565,16 @@ export function useGameData() {
         description: `Defeated ${boss.name}`,
       });
 
-    setStats(prev => ({ 
-      ...prev, 
-      balance: newBalance, 
-      hp: newHP, 
-      xp: newXP, 
-      level: newLevel, 
+    setStats(prev => ({
+      ...prev,
+      balance: newBalance,
+      hp: newHP,
+      xp: newXP,
+      level: newLevel,
       gems: newGems,
     }));
 
-    setBosses(prev => prev.map(b => 
+    setBosses(prev => prev.map(b =>
       b.id === boss.id ? { ...b, isDefeated: true, currentHp: 0 } : b
     ));
 
@@ -592,11 +592,96 @@ export function useGameData() {
     return { bossDefeated: true };
   }, [user, stats, bosses, calculateHP, getLevelFromXP, openLootBox, toast]);
 
+  const addBoss = useCallback(async (name: string, cost: number, dueDateStr: string) => {
+    if (!user) return;
+    const bossId = 'boss_' + Date.now().toString(36);
+    const xpReward = Math.floor(cost * 0.1) || 10;
+    const gemReward = Math.floor(cost * 0.01) || 1;
+
+    // insert DB
+    const { data } = await supabase
+      .from('user_bosses')
+      .insert({
+        user_id: user.id,
+        boss_id: bossId,
+        boss_name: name,
+        current_hp: cost,
+        max_hp: cost,
+        cost,
+        xp_reward: xpReward,
+        gem_reward: gemReward,
+        due_date: dueDateStr,
+        is_defeated: false
+      })
+      .select()
+      .single();
+
+    if (data) {
+      setBosses(prev => [...prev, {
+        id: data.id,
+        bossId: data.boss_id,
+        name: data.boss_name,
+        currentHp: data.current_hp,
+        maxHp: data.max_hp,
+        cost: Number(data.cost),
+        xpReward: data.xp_reward,
+        gemReward: data.gem_reward,
+        dueDate: data.due_date ? new Date(data.due_date) : null,
+        isDefeated: data.is_defeated,
+      }]);
+    }
+  }, [user]);
+
+  const updateBoss = useCallback(async (id: string, name: string, cost: number, dueDateStr: string) => {
+    if (!user) return;
+    const xpReward = Math.floor(cost * 0.1) || 10;
+    const gemReward = Math.floor(cost * 0.01) || 1;
+
+    const { data } = await supabase
+      .from('user_bosses')
+      .update({
+        boss_name: name,
+        max_hp: cost,
+        cost,
+        xp_reward: xpReward,
+        gem_reward: gemReward,
+        due_date: dueDateStr
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (data) {
+      setBosses(prev => prev.map(b => b.id === id ? {
+        ...b,
+        name: data.boss_name,
+        maxHp: data.max_hp,
+        // Calculate new currentHp based on ratio if it hasn't been paid completely
+        currentHp: b.currentHp > 0 ? Math.min(b.currentHp + (cost - b.maxHp), cost) : 0,
+        cost: Number(data.cost),
+        xpReward: data.xp_reward,
+        gemReward: data.gem_reward,
+        dueDate: data.due_date ? new Date(data.due_date) : null,
+      } : b));
+    }
+  }, [user]);
+
+  const deleteBoss = useCallback(async (id: string) => {
+    if (!user) return;
+
+    await supabase
+      .from('user_bosses')
+      .delete()
+      .eq('id', id);
+
+    setBosses(prev => prev.filter(b => b.id !== id));
+  }, [user]);
+
   const equipAccessory = useCallback(async (accessory: AvatarAccessory) => {
     if (!user) return;
 
     const currentlyEquipped = equippedAccessories[accessory.slot];
-    
+
     if (currentlyEquipped?.id === accessory.id) {
       // Unequip
       await supabase
@@ -649,7 +734,9 @@ export function useGameData() {
   }));
 
   const formattedBosses = bosses.map(b => ({
-    id: b.bossId,
+    id: b.id, // Changed to UUID to allow editing correctly
+    trueId: b.id,
+    bossId: b.bossId,
     name: b.name,
     icon: b.bossId === 'boss_rent' ? '🏠' : b.bossId === 'boss_netflix' ? '📺' : '💪',
     type: 'bill' as const,
@@ -697,5 +784,8 @@ export function useGameData() {
     getXPProgress,
     defeatBoss,
     equipAccessory,
+    addBoss,
+    updateBoss,
+    deleteBoss,
   };
 }
