@@ -22,6 +22,12 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const checkOnboarding = async () => {
+      const timeoutId = setTimeout(() => {
+        console.warn("Onboarding check timed out, proceeding to dashboard");
+        setNeedsOnboarding(false);
+        setCheckingOnboarding(false);
+      }, 5000);
+
       try {
         const { data, error } = await supabase
           .from('user_stats')
@@ -29,6 +35,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
           .eq('user_id', user.id)
           .maybeSingle();
 
+        clearTimeout(timeoutId);
         if (error) {
           console.error("Error checking onboarding status:", error);
           setNeedsOnboarding(false);
@@ -36,6 +43,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
           setNeedsOnboarding(!data?.onboarding_completed);
         }
       } catch (err) {
+        clearTimeout(timeoutId);
         console.error("Critical error in checkOnboarding:", err);
         setNeedsOnboarding(false);
       } finally {
@@ -76,6 +84,12 @@ function OnboardingRoute({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const checkOnboarding = async () => {
+      const timeoutId = setTimeout(() => {
+        console.warn("Onboarding check timed out, proceeding");
+        setOnboardingCompleted(true);
+        setCheckingOnboarding(false);
+      }, 5000);
+
       try {
         const { data, error } = await supabase
           .from('user_stats')
@@ -83,6 +97,7 @@ function OnboardingRoute({ children }: { children: React.ReactNode }) {
           .eq('user_id', user.id)
           .maybeSingle();
 
+        clearTimeout(timeoutId);
         if (error) {
           console.error("Error fetching onboarding status:", error);
           setOnboardingCompleted(true); // Don't block user if check fails
@@ -90,6 +105,7 @@ function OnboardingRoute({ children }: { children: React.ReactNode }) {
           setOnboardingCompleted(!!data?.onboarding_completed);
         }
       } catch (err) {
+        clearTimeout(timeoutId);
         console.error("Critical error in checkOnboarding:", err);
         setOnboardingCompleted(true);
       } finally {

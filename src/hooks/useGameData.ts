@@ -105,6 +105,11 @@ export function useGameData() {
 
     const loadData = async () => {
       setLoading(true);
+      const timeoutId = setTimeout(() => {
+        console.warn("Data loading timed out, using defaults");
+        setLoading(false);
+      }, 8000);
+
       try {
         // Load stats
         const { data: statsData } = await supabase
@@ -236,6 +241,7 @@ export function useGameData() {
       } catch (error) {
         console.error('Error loading game data:', error);
       } finally {
+        clearTimeout(timeoutId);
         setLoading(false);
       }
     };
