@@ -22,19 +22,25 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const checkOnboarding = async () => {
-      if (!user) {
+      try {
+        const { data, error } = await supabase
+          .from('user_stats')
+          .select('onboarding_completed')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (error) {
+          console.error("Error checking onboarding status:", error);
+          setNeedsOnboarding(false);
+        } else {
+          setNeedsOnboarding(!data?.onboarding_completed);
+        }
+      } catch (err) {
+        console.error("Critical error in checkOnboarding:", err);
+        setNeedsOnboarding(false);
+      } finally {
         setCheckingOnboarding(false);
-        return;
       }
-
-      const { data } = await supabase
-        .from('user_stats')
-        .select('onboarding_completed')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      setNeedsOnboarding(!data?.onboarding_completed);
-      setCheckingOnboarding(false);
     };
 
     if (!authLoading && user) {
@@ -70,19 +76,25 @@ function OnboardingRoute({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const checkOnboarding = async () => {
-      if (!user) {
+      try {
+        const { data, error } = await supabase
+          .from('user_stats')
+          .select('onboarding_completed')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (error) {
+          console.error("Error fetching onboarding status:", error);
+          setOnboardingCompleted(true); // Don't block user if check fails
+        } else {
+          setOnboardingCompleted(!!data?.onboarding_completed);
+        }
+      } catch (err) {
+        console.error("Critical error in checkOnboarding:", err);
+        setOnboardingCompleted(true);
+      } finally {
         setCheckingOnboarding(false);
-        return;
       }
-
-      const { data } = await supabase
-        .from('user_stats')
-        .select('onboarding_completed')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      setOnboardingCompleted(!!data?.onboarding_completed);
-      setCheckingOnboarding(false);
     };
 
     if (!authLoading && user) {

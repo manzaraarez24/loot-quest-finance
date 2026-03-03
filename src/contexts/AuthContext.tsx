@@ -22,14 +22,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchAdminStatus = async (userId: string) => {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('is_admin')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
-      setIsAdmin(!!data?.is_admin);
-    } catch {
+      if (error) {
+        console.error("Error fetching admin status:", error);
+        setIsAdmin(false);
+      } else {
+        setIsAdmin(!!(data as any)?.is_admin);
+      }
+    } catch (err) {
+      console.error("Critical error in fetchAdminStatus:", err);
       setIsAdmin(false);
     }
   };
