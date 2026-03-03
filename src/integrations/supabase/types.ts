@@ -222,6 +222,7 @@ export type Database = {
         Row: {
           balance: number | null
           created_at: string | null
+          expected_expenses: number | null
           gems: number | null
           hp: number | null
           id: string
@@ -229,6 +230,7 @@ export type Database = {
           max_hp: number | null
           monthly_limit: number | null
           no_spend_streak: number | null
+          onboarding_completed: boolean | null
           updated_at: string | null
           user_id: string
           xp: number | null
@@ -236,6 +238,7 @@ export type Database = {
         Insert: {
           balance?: number | null
           created_at?: string | null
+          expected_expenses?: number | null
           gems?: number | null
           hp?: number | null
           id?: string
@@ -243,6 +246,7 @@ export type Database = {
           max_hp?: number | null
           monthly_limit?: number | null
           no_spend_streak?: number | null
+          onboarding_completed?: boolean | null
           updated_at?: string | null
           user_id: string
           xp?: number | null
@@ -250,6 +254,7 @@ export type Database = {
         Update: {
           balance?: number | null
           created_at?: string | null
+          expected_expenses?: number | null
           gems?: number | null
           hp?: number | null
           id?: string
@@ -257,6 +262,7 @@ export type Database = {
           max_hp?: number | null
           monthly_limit?: number | null
           no_spend_streak?: number | null
+          onboarding_completed?: boolean | null
           updated_at?: string | null
           user_id?: string
           xp?: number | null

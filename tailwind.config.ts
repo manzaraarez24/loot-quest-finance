@@ -90,10 +90,10 @@ export default {
         },
         "pulse-glow": {
           "0%, 100%": { 
-            boxShadow: "0 0 20px hsl(var(--hp-critical) / 0.4), 0 0 40px hsl(var(--hp-critical) / 0.2)",
+            boxShadow: "0 0 12px hsl(var(--hp-critical) / 0.25), 0 0 24px hsl(var(--hp-critical) / 0.1)",
           },
           "50%": { 
-            boxShadow: "0 0 40px hsl(var(--hp-critical) / 0.8), 0 0 80px hsl(var(--hp-critical) / 0.4)",
+            boxShadow: "0 0 20px hsl(var(--hp-critical) / 0.4), 0 0 40px hsl(var(--hp-critical) / 0.2)",
           },
         },
         "float": {
