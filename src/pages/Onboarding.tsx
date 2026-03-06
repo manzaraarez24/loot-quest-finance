@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Wallet, Target, Sparkles, ArrowRight } from 'lucide-react';
+import { Shield, Wallet, Target, Sparkles, ArrowRight, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,11 +11,22 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { toast } from 'sonner';
 
+type Currency = '$' | '€' | '£' | '¥' | '₹';
+
+const CURRENCY_OPTIONS: { symbol: Currency; name: string; flag: string }[] = [
+  { symbol: '$', name: 'US Dollar', flag: '🇺🇸' },
+  { symbol: '€', name: 'Euro', flag: '🇪🇺' },
+  { symbol: '£', name: 'British Pound', flag: '🇬🇧' },
+  { symbol: '¥', name: 'Japanese Yen', flag: '🇯🇵' },
+  { symbol: '₹', name: 'Indian Rupee', flag: '🇮🇳' },
+];
+
 const Onboarding = () => {
-  const { currency } = useCurrency();
+  const { currency, setCurrency } = useCurrency();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
+  const [selectedCurrency, setSelectedCurrency] = useState<Currency>(currency);
   const [budget, setBudget] = useState(2000);
   const [expectedExpenses, setExpectedExpenses] = useState(1500);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -80,7 +91,7 @@ const Onboarding = () => {
 
         {/* Progress Indicator */}
         <div className="flex gap-2 mb-8 justify-center">
-          {[1, 2].map((s) => (
+          {[0, 1, 2].map((s) => (
             <motion.div
               key={s}
               className={`h-2 rounded-full transition-all duration-300 ${s <= step ? 'w-12 bg-neon-green' : 'w-8 bg-white/20'
@@ -90,6 +101,57 @@ const Onboarding = () => {
             />
           ))}
         </div>
+
+        {/* Step 0: Currency Selection */}
+        {step === 0 && (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="liquid-glass-strong rounded-3xl p-6 space-y-6"
+          >
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full bg-neon-cyan/20 flex items-center justify-center mx-auto mb-4">
+                <Globe className="w-8 h-8 text-neon-cyan" />
+              </div>
+              <h2 className="font-display text-xl font-bold mb-2">Choose Your Currency</h2>
+              <p className="text-sm text-muted-foreground">
+                Select the currency for your financial adventure
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {CURRENCY_OPTIONS.map((option) => (
+                <motion.button
+                  key={option.symbol}
+                  onClick={() => setSelectedCurrency(option.symbol)}
+                  className={`p-4 rounded-2xl border-2 transition-all ${
+                    selectedCurrency === option.symbol
+                      ? 'border-neon-cyan bg-neon-cyan/10'
+                      : 'border-white/20 bg-white/5 hover:border-white/40'
+                  }`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <div className="text-2xl mb-2">{option.flag}</div>
+                  <div className="text-sm font-semibold">{option.symbol}</div>
+                  <div className="text-xs text-muted-foreground">{option.name}</div>
+                </motion.button>
+              ))}
+            </div>
+
+            <Button
+              onClick={() => {
+                setCurrency(selectedCurrency);
+                setStep(1);
+              }}
+              className="w-full h-14 rounded-2xl bg-gradient-to-r from-neon-cyan to-neon-green text-background font-display font-bold text-lg"
+            >
+              Continue
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+          </motion.div>
+        )}
 
         {/* Step 1: Budget */}
         {step === 1 && (
@@ -146,13 +208,22 @@ const Onboarding = () => {
               </div>
             </div>
 
-            <Button
-              onClick={() => setStep(2)}
-              className="w-full h-14 rounded-2xl bg-gradient-to-r from-neon-green to-neon-cyan text-background font-display font-bold text-lg"
-            >
-              Continue
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
+            <div className="flex gap-3">
+              <Button
+                variant="ghost"
+                onClick={() => setStep(0)}
+                className="flex-1 h-14 rounded-2xl border border-white/20"
+              >
+                Back
+              </Button>
+              <Button
+                onClick={() => setStep(2)}
+                className="flex-1 h-14 rounded-2xl bg-gradient-to-r from-neon-green to-neon-cyan text-background font-display font-bold text-lg"
+              >
+                Continue
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </div>
           </motion.div>
         )}
 
