@@ -76,17 +76,19 @@ class MainActivity : AppCompatActivity() {
         // Handle navigation and asset loading within the WebView
         webView.webViewClient = object : WebViewClientCompat() {
             override fun shouldInterceptRequest(
-                view: WebView,
-                request: WebResourceRequest
+                view: WebView?,
+                request: WebResourceRequest?
             ): WebResourceResponse? {
+                if (request == null) return null
+                
                 val url = request.url
                 
                 // Allow the asset loader to handle the request first (/assets/)
-                var response = assetLoader.shouldInterceptRequest(request)
+                var response = assetLoader.shouldInterceptRequest(request.url)
                 
                 // If it's a null response and not an API call, it's likely a React Router navigation.
                 // Serve index.html so React can handle the client-side routing.
-                if (response == null && url.host == "appassets.androidplatform.net") {
+                if (response == null && url?.host == "appassets.androidplatform.net") {
                     try {
                         val inputStream: InputStream = assets.open("web/index.html")
                         response = WebResourceResponse("text/html", "UTF-8", inputStream)
