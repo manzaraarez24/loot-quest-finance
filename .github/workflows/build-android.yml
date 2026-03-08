@@ -36,12 +36,13 @@ jobs:
           java-version: '17'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v4
 
-      - name: Build Android APK
+      - name: Generate Gradle Wrapper and Build APK
         working-directory: android-app
         run: |
-          gradle wrapper
+          gradle wrapper --gradle-version 8.5
+          chmod +x gradlew
           ./gradlew assembleDebug
 
       - name: Upload APK
