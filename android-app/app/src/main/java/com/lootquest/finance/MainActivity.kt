@@ -10,6 +10,11 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.webkit.WebViewAssetLoader
+import androidx.webkit.WebViewAssetLoader.AssetsPathHandler
+import androidx.webkit.WebViewClientCompat
+import java.io.InputStream
+import android.net.Uri
 
 class MainActivity : AppCompatActivity() {
 
@@ -63,14 +68,33 @@ class MainActivity : AppCompatActivity() {
             textZoom = 100
         }
 
-        // Handle navigation within the WebView
-        webView.webViewClient = object : WebViewClient() {
-            override fun shouldOverrideUrlLoading(
-                view: WebView?,
-                request: WebResourceRequest?
-            ): Boolean {
-                // Keep all navigation inside the WebView
-                return false
+        // Create the Asset Loader
+        val assetLoader = WebViewAssetLoader.Builder()
+            .addPathHandler("/assets/", AssetsPathHandler(this))
+            .build()
+
+        // Handle navigation and asset loading within the WebView
+        webView.webViewClient = object : WebViewClientCompat() {
+            override fun shouldInterceptRequest(
+                view: WebView,
+                request: WebResourceRequest
+            ): WebResourceResponse? {
+                val url = request.url
+                
+                // Allow the asset loader to handle the request first (/assets/)
+                var response = assetLoader.shouldInterceptRequest(request)
+                
+                // If it's a null response and not an API call, it's likely a React Router navigation.
+                // Serve index.html so React can handle the client-side routing.
+                if (response == null && url.host == "appassets.androidplatform.net") {
+                    try {
+                        val inputStream: InputStream = assets.open("web/index.html")
+                        response = WebResourceResponse("text/html", "UTF-8", inputStream)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+                return response
             }
 
             override fun onPageFinished(view: WebView?, url: String?) {
@@ -104,8 +128,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Load the bundled web app from assets
-        webView.loadUrl("file:///android_asset/web/index.html")
+        // Load the bundled web app from the virtual AssetLoader server
+        webView.loadUrl("https://appassets.androidplatform.net/assets/index.html")
     }
 
     // Handle back button navigation within WebView
