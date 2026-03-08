@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <!-- Set the splash screen background, animated icon, and animation duration. -->
+        <item name="windowSplashScreenBackground">#0A0A0F</item>
+        
+        <!-- Use our new vector logo or drawable -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/logo</item>
+        
+        <!-- Keep it on screen for a moment -->
+        <item name="windowSplashScreenAnimationDuration">1000</item>
+        
+        <!-- Set the theme of the Activity that directly follows your splash screen. -->
+        <item name="postSplashScreenTheme">@style/Theme.LootQuest</item>
+    </style>
+</resources>
