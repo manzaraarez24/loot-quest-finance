@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">loot-quest-finance</string>
-    <string name="title_activity_main">loot-quest-finance</string>
-    <string name="package_name">com.lootquest.finance</string>
-    <string name="custom_url_scheme">com.lootquest.finance</string>
-</resources>

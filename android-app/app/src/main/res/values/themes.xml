@@ -1,0 +1,10 @@
+<resources>
+    <style name="Theme.LootQuest" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:statusBarColor">#0A0A0F</item>
+        <item name="android:navigationBarColor">#0A0A0F</item>
+        <item name="android:windowBackground">#0A0A0F</item>
+        <item name="android:colorPrimary">#00FF88</item>
+        <item name="android:colorPrimaryDark">#0A0A0F</item>
+        <item name="android:colorAccent">#FF006E</item>
+    </style>
+</resources>

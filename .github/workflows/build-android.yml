@@ -18,17 +18,16 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install dependencies
+      - name: Install web dependencies
         run: npm ci || npm install
 
       - name: Build web app
         run: npm run build
 
-      - name: Install Capacitor CLI
-        run: npm install -D @capacitor/cli
-
-      - name: Sync Capacitor Android
-        run: npx cap sync android
+      - name: Copy web build to Android assets
+        run: |
+          mkdir -p android-app/app/src/main/assets/web
+          cp -r dist/* android-app/app/src/main/assets/web/
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -36,12 +35,17 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
       - name: Build Android APK
-        working-directory: android
-        run: ./gradlew assembleDebug
+        working-directory: android-app
+        run: |
+          gradle wrapper
+          ./gradlew assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug.apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: LootQuest-debug
+          path: android-app/app/build/outputs/apk/debug/app-debug.apk
