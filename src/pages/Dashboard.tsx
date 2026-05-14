@@ -83,7 +83,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background cyber-grid scanline relative overflow-hidden">
+    <div className="min-h-screen bg-background cyber-grid scanline relative overflow-x-hidden overflow-y-auto">
       {/* Ambient glow effects */}
       <div className="fixed top-0 left-1/4 w-96 h-96 bg-neon-green/5 rounded-full blur-[100px] pointer-events-none" />
       <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-neon-pink/5 rounded-full blur-[100px] pointer-events-none" />
@@ -99,13 +99,13 @@ const Dashboard = () => {
             <div className="flex-1 flex justify-start">
               <CurrencySelector />
             </div>
-            <div className="flex items-center justify-center gap-3">
-              <Shield className="w-8 h-8 text-neon-green" />
-              <h1 className="font-display text-4xl font-black text-foreground tracking-tight">
+            <div className="flex items-center justify-center gap-1 md:gap-3">
+              <Shield className="w-5 h-5 md:w-8 md:h-8 text-neon-green" />
+              <h1 className="font-display text-2xl md:text-4xl font-black text-foreground tracking-tight">
                 <span className="text-neon-green neon-text-green">LOOT</span>
                 <span className="text-neon-pink neon-text-pink">BAG</span>
               </h1>
-              <Wallet className="w-8 h-8 text-neon-pink" />
+              <Wallet className="w-5 h-5 md:w-8 md:h-8 text-neon-pink" />
             </div>
             <div className="flex-1 flex justify-end">
               <Button

@@ -107,7 +107,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background cyber-grid scanline relative overflow-hidden flex items-center justify-center">
+    <div className="min-h-screen bg-background cyber-grid scanline relative overflow-x-hidden overflow-y-auto flex items-center justify-center">
       {/* Ambient glow effects */}
       <div className="fixed top-0 left-1/4 w-96 h-96 bg-neon-green/5 rounded-full blur-[100px] pointer-events-none" />
       <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-neon-pink/5 rounded-full blur-[100px] pointer-events-none" />

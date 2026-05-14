@@ -41,6 +41,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    // Fallback timeout in case auth check hangs
+    const authTimeout = setTimeout(() => {
+      console.warn("Auth check timed out");
+      setLoading(false);
+    }, 5000);
+
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -51,23 +57,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
           setIsAdmin(false);
         }
+        clearTimeout(authTimeout);
         setLoading(false);
       }
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        await fetchAdminStatus(session.user.id);
-      } else {
-        setIsAdmin(false);
-      }
-      setLoading(false);
-    });
+    supabase.auth.getSession()
+      .then(async ({ data: { session } }) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          await fetchAdminStatus(session.user.id);
+        } else {
+          setIsAdmin(false);
+        }
+        clearTimeout(authTimeout);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error getting session:", err);
+        clearTimeout(authTimeout);
+        setLoading(false);
+      });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(authTimeout);
+    };
   }, []);
 
   const signUp = async (email: string, password: string, username?: string) => {
