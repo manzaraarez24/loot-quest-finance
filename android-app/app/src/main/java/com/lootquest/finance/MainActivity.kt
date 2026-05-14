@@ -68,9 +68,10 @@ class MainActivity : AppCompatActivity() {
             textZoom = 100
         }
 
-        // Create the Asset Loader
+        // Create the Asset Loader with root path handler
         val assetLoader = WebViewAssetLoader.Builder()
-            .addPathHandler("/assets/", AssetsPathHandler(this))
+            .setDomain("appassets.androidplatform.net")
+            .addPathHandler("/", AssetsPathHandler(this))
             .build()
 
         // Handle navigation and asset loading within the WebView
@@ -90,7 +91,7 @@ class MainActivity : AppCompatActivity() {
                 // Serve index.html so React can handle the client-side routing.
                 if (response == null && url?.host == "appassets.androidplatform.net") {
                     try {
-                        val inputStream: InputStream = assets.open("web/index.html")
+                        val inputStream: InputStream = assets.open("index.html")
                         response = WebResourceResponse("text/html", "UTF-8", inputStream)
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -131,7 +132,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Load the bundled web app from the virtual AssetLoader server
-        webView.loadUrl("https://appassets.androidplatform.net/assets/index.html")
+        webView.loadUrl("https://appassets.androidplatform.net/index.html")
     }
 
     // Handle back button navigation within WebView

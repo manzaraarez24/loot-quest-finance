@@ -26,8 +26,8 @@ jobs:
 
       - name: Copy web build to Android assets
         run: |
-          mkdir -p android-app/app/src/main/assets/web
-          cp -r dist/* android-app/app/src/main/assets/web/
+          rm -rf android-app/app/src/main/assets/*
+          cp -r dist/* android-app/app/src/main/assets/
 
       - name: Setup Java
         uses: actions/setup-java@v4
