@@ -30,6 +30,8 @@ const Onboarding = () => {
   const [budget, setBudget] = useState(2000);
   const [expectedExpenses, setExpectedExpenses] = useState(1500);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [budgetInput, setBudgetInput] = useState('2000');
+  const [expenseInput, setExpenseInput] = useState('1500');
 
   const handleComplete = async () => {
     if (!user) return;
@@ -180,7 +182,10 @@ const Onboarding = () => {
 
               <Slider
                 value={[budget]}
-                onValueChange={(value) => setBudget(value[0])}
+                onValueChange={(value) => {
+                  setBudget(value[0]);
+                  setBudgetInput(String(value[0]));
+                }}
                 min={500}
                 max={10000}
                 step={100}
@@ -200,8 +205,18 @@ const Onboarding = () => {
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">{currency}</span>
                   <Input
                     type="number"
-                    value={budget}
-                    onChange={(e) => setBudget(Math.max(100, parseInt(e.target.value) || 0))}
+                    value={budgetInput}
+                    onChange={(e) => {
+                      setBudgetInput(e.target.value);
+                      const val = parseInt(e.target.value);
+                      if (!isNaN(val) && val > 0) setBudget(val);
+                    }}
+                    onBlur={() => {
+                      const val = parseInt(budgetInput);
+                      const final = isNaN(val) || val < 100 ? 100 : val;
+                      setBudget(final);
+                      setBudgetInput(String(final));
+                    }}
                     className="pl-7 bg-white/5 border-white/20 rounded-xl"
                   />
                 </div>
@@ -259,7 +274,10 @@ const Onboarding = () => {
 
               <Slider
                 value={[expectedExpenses]}
-                onValueChange={(value) => setExpectedExpenses(value[0])}
+                onValueChange={(value) => {
+                  setExpectedExpenses(value[0]);
+                  setExpenseInput(String(value[0]));
+                }}
                 min={100}
                 max={budget}
                 step={50}
@@ -279,8 +297,18 @@ const Onboarding = () => {
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">{currency}</span>
                   <Input
                     type="number"
-                    value={expectedExpenses}
-                    onChange={(e) => setExpectedExpenses(Math.max(0, parseInt(e.target.value) || 0))}
+                    value={expenseInput}
+                    onChange={(e) => {
+                      setExpenseInput(e.target.value);
+                      const val = parseInt(e.target.value);
+                      if (!isNaN(val) && val >= 0) setExpectedExpenses(val);
+                    }}
+                    onBlur={() => {
+                      const val = parseInt(expenseInput);
+                      const final = isNaN(val) || val < 0 ? 0 : Math.min(val, budget);
+                      setExpectedExpenses(final);
+                      setExpenseInput(String(final));
+                    }}
                     className="pl-7 bg-white/5 border-white/20 rounded-xl"
                   />
                 </div>

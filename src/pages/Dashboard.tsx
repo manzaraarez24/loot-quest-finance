@@ -140,17 +140,17 @@ const Dashboard = () => {
 
         {/* Tabs for different views */}
         <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="w-full mb-6 bg-muted/30 border border-border/50 p-1 rounded-lg grid grid-cols-3">
-            <TabsTrigger value="dashboard" className="font-display text-sm">
+          <TabsList className="w-full mb-6 bg-muted/30 border border-border/50 p-1 rounded-lg grid grid-cols-4">
+            <TabsTrigger value="dashboard" className="font-display text-xs px-1">
               🎮 Dashboard
             </TabsTrigger>
-            <TabsTrigger value="battle" className="font-display text-sm">
-              ⚔️ Battle Zone
+            <TabsTrigger value="battle" className="font-display text-xs px-1">
+              ⚔️ Battle
             </TabsTrigger>
-            <TabsTrigger value="oracle" className="font-display text-sm">
+            <TabsTrigger value="oracle" className="font-display text-xs px-1">
               🔮 Oracle
             </TabsTrigger>
-            <TabsTrigger value="profile" className="font-display text-sm">
+            <TabsTrigger value="profile" className="font-display text-xs px-1">
               👤 Profile
             </TabsTrigger>
           </TabsList>

@@ -68,10 +68,38 @@
 @layer base {
   * {
     @apply border-border;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+  }
+
+  /* Hide scrollbars globally — native apps don't show them */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  html, body {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+    overscroll-behavior: none; /* No overscroll glow/bounce */
+    -webkit-overflow-scrolling: touch; /* Smooth momentum scrolling */
   }
 
   body {
     @apply bg-background text-foreground font-body antialiased;
+    /* Prevent pull-to-refresh and overscroll */
+    overscroll-behavior-y: none;
+    /* Prevent text selection on UI elements — feels native */
+    -webkit-user-select: none;
+    user-select: none;
+    /* Safe area for notch/status bar */
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Allow text selection only on actual input fields */
+  input, textarea, [contenteditable] {
+    -webkit-user-select: text;
+    user-select: text;
   }
 
   h1, h2, h3, h4, h5, h6 {

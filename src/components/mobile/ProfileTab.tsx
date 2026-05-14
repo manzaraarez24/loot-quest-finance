@@ -36,6 +36,8 @@ export function ProfileTab({
   const [isEditingBudget, setIsEditingBudget] = useState(false);
   const [editBudget, setEditBudget] = useState(budgetSettings?.monthlyLimit || 2000);
   const [editExpenses, setEditExpenses] = useState(budgetSettings?.expectedExpenses || 1500);
+  const [budgetInput, setBudgetInput] = useState(String(budgetSettings?.monthlyLimit || 2000));
+  const [expenseInput, setExpenseInput] = useState(String(budgetSettings?.expectedExpenses || 1500));
   const [isUpdating, setIsUpdating] = useState(false);
 
   const handleSaveBudget = async () => {
@@ -50,8 +52,12 @@ export function ProfileTab({
   };
 
   const handleCancelEdit = () => {
-    setEditBudget(budgetSettings?.monthlyLimit || 2000);
-    setEditExpenses(budgetSettings?.expectedExpenses || 1500);
+    const defaultBudget = budgetSettings?.monthlyLimit || 2000;
+    const defaultExpenses = budgetSettings?.expectedExpenses || 1500;
+    setEditBudget(defaultBudget);
+    setEditExpenses(defaultExpenses);
+    setBudgetInput(String(defaultBudget));
+    setExpenseInput(String(defaultExpenses));
     setIsEditingBudget(false);
   };
 
@@ -127,7 +133,10 @@ export function ProfileTab({
                 </div>
                 <Slider
                   value={[editBudget]}
-                  onValueChange={(value) => setEditBudget(value[0])}
+                  onValueChange={(value) => {
+                    setEditBudget(value[0]);
+                    setBudgetInput(String(value[0]));
+                  }}
                   min={500}
                   max={10000}
                   step={100}
@@ -137,8 +146,18 @@ export function ProfileTab({
                   <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="number"
-                    value={editBudget}
-                    onChange={(e) => setEditBudget(Math.max(100, parseInt(e.target.value) || 0))}
+                    value={budgetInput}
+                    onChange={(e) => {
+                      setBudgetInput(e.target.value);
+                      const val = parseInt(e.target.value);
+                      if (!isNaN(val) && val > 0) setEditBudget(val);
+                    }}
+                    onBlur={() => {
+                      const val = parseInt(budgetInput);
+                      const final = isNaN(val) || val < 100 ? 100 : val;
+                      setEditBudget(final);
+                      setBudgetInput(String(final));
+                    }}
                     className="pl-8 bg-white/5 border-white/20 rounded-xl h-10"
                   />
                 </div>
@@ -157,7 +176,10 @@ export function ProfileTab({
                 </div>
                 <Slider
                   value={[editExpenses]}
-                  onValueChange={(value) => setEditExpenses(value[0])}
+                  onValueChange={(value) => {
+                    setEditExpenses(value[0]);
+                    setExpenseInput(String(value[0]));
+                  }}
                   min={100}
                   max={editBudget}
                   step={50}
@@ -167,8 +189,18 @@ export function ProfileTab({
                   <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="number"
-                    value={editExpenses}
-                    onChange={(e) => setEditExpenses(Math.max(0, parseInt(e.target.value) || 0))}
+                    value={expenseInput}
+                    onChange={(e) => {
+                      setExpenseInput(e.target.value);
+                      const val = parseInt(e.target.value);
+                      if (!isNaN(val) && val >= 0) setEditExpenses(val);
+                    }}
+                    onBlur={() => {
+                      const val = parseInt(expenseInput);
+                      const final = isNaN(val) || val < 0 ? 0 : Math.min(val, editBudget);
+                      setEditExpenses(final);
+                      setExpenseInput(String(final));
+                    }}
                     className="pl-8 bg-white/5 border-white/20 rounded-xl h-10"
                   />
                 </div>

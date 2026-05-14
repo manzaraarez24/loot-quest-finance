@@ -46,6 +46,11 @@ class MainActivity : AppCompatActivity() {
                 android.view.ViewGroup.LayoutParams.MATCH_PARENT
             )
             setBackgroundColor(android.graphics.Color.parseColor("#0A0A0F"))
+            // Disable overscroll glow effect — native apps don't have this
+            overScrollMode = View.OVER_SCROLL_NEVER
+            // Disable vertical scrollbar
+            isVerticalScrollBarEnabled = false
+            isHorizontalScrollBarEnabled = false
         }
 
         setContentView(webView)
@@ -118,10 +123,11 @@ class MainActivity : AppCompatActivity() {
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                // Inject viewport meta tag to ensure proper scaling
+                // Inject native app feel: viewport, scrollbar hiding, overscroll prevention
                 view?.evaluateJavascript(
                     """
                     (function() {
+                        // Ensure viewport is set for mobile
                         var meta = document.querySelector('meta[name="viewport"]');
                         if (!meta) {
                             meta = document.createElement('meta');
@@ -129,6 +135,32 @@ class MainActivity : AppCompatActivity() {
                             document.head.appendChild(meta);
                         }
                         meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
+                        
+                        // Inject native-app CSS overrides
+                        var style = document.createElement('style');
+                        style.textContent = `
+                            /* Hide all scrollbars */
+                            ::-webkit-scrollbar { display: none !important; }
+                            * { scrollbar-width: none !important; }
+                            
+                            /* Disable overscroll glow/bounce */
+                            html, body {
+                                overscroll-behavior: none !important;
+                                overflow-x: hidden !important;
+                            }
+                            
+                            /* Disable text selection on UI (not inputs) */
+                            body { 
+                                -webkit-user-select: none !important;
+                                user-select: none !important;
+                                -webkit-tap-highlight-color: transparent !important;
+                            }
+                            input, textarea, [contenteditable] {
+                                -webkit-user-select: text !important;
+                                user-select: text !important;
+                            }
+                        `;
+                        document.head.appendChild(style);
                     })();
                     """.trimIndent(),
                     null
