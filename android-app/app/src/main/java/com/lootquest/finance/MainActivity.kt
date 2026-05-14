@@ -74,6 +74,13 @@ class MainActivity : AppCompatActivity() {
             .addPathHandler("/", AssetsPathHandler(this))
             .build()
 
+        // File extensions that correspond to real asset files (not SPA routes)
+        val assetExtensions = setOf(
+            ".js", ".css", ".html", ".png", ".jpg", ".jpeg", ".gif", ".svg",
+            ".ico", ".woff", ".woff2", ".ttf", ".eot", ".json", ".map",
+            ".webp", ".mp4", ".webm", ".ogg", ".mp3", ".wav"
+        )
+
         // Handle navigation and asset loading within the WebView
         webView.webViewClient = object : WebViewClientCompat() {
             override fun shouldInterceptRequest(
@@ -84,20 +91,29 @@ class MainActivity : AppCompatActivity() {
                 
                 val url = request.url
                 
-                // Allow the asset loader to handle the request first (/assets/)
-                var response = assetLoader.shouldInterceptRequest(request.url)
+                // Only intercept requests to our asset domain
+                if (url?.host != "appassets.androidplatform.net") return null
+
+                val path = url.path ?: "/"
                 
-                // If it's a null response and not an API call, it's likely a React Router navigation.
-                // Serve index.html so React can handle the client-side routing.
-                if (response == null && url?.host == "appassets.androidplatform.net") {
-                    try {
-                        val inputStream: InputStream = assets.open("index.html")
-                        response = WebResourceResponse("text/html", "UTF-8", inputStream)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
+                // Check if this is a request for a real asset file (has a file extension)
+                val isAssetFile = assetExtensions.any { path.lowercase().endsWith(it) }
+                
+                if (isAssetFile) {
+                    // Let the asset loader handle real files (JS, CSS, images, etc.)
+                    return assetLoader.shouldInterceptRequest(url)
                 }
-                return response
+                
+                // For all other paths (SPA routes like /, /auth, /onboarding, /admin),
+                // serve index.html so React Router can handle client-side routing
+                try {
+                    val inputStream: InputStream = assets.open("index.html")
+                    return WebResourceResponse("text/html", "UTF-8", inputStream)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+                
+                return null
             }
 
             override fun onPageFinished(view: WebView?, url: String?) {
@@ -131,8 +147,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Load the bundled web app from the virtual AssetLoader server
-        webView.loadUrl("https://appassets.androidplatform.net/index.html")
+        // Load the root path — React Router will handle routing from here
+        webView.loadUrl("https://appassets.androidplatform.net/")
     }
 
     // Handle back button navigation within WebView
@@ -146,3 +162,4 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
+
