@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() {
             allowFileAccess = true
             allowContentAccess = true
             mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-            cacheMode = WebSettings.LOAD_DEFAULT
+            cacheMode = WebSettings.LOAD_NO_CACHE
             setSupportZoom(false)
             builtInZoomControls = false
             displayZoomControls = false
@@ -72,6 +72,9 @@ class MainActivity : AppCompatActivity() {
             mediaPlaybackRequiresUserGesture = false
             textZoom = 100
         }
+
+        // Clear cache explicitly on startup
+        webView.clearCache(true)
 
         // Create the Asset Loader with root path handler
         val assetLoader = WebViewAssetLoader.Builder()
@@ -123,7 +126,7 @@ class MainActivity : AppCompatActivity() {
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                // Inject native app feel: viewport, scrollbar hiding, overscroll prevention
+                // Inject native app feel: viewport
                 view?.evaluateJavascript(
                     """
                     (function() {
@@ -135,32 +138,6 @@ class MainActivity : AppCompatActivity() {
                             document.head.appendChild(meta);
                         }
                         meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
-                        
-                        // Inject native-app CSS overrides
-                        var style = document.createElement('style');
-                        style.textContent = `
-                            /* Hide all scrollbars */
-                            ::-webkit-scrollbar { display: none !important; }
-                            * { scrollbar-width: none !important; }
-                            
-                            /* Disable overscroll glow/bounce */
-                            html, body {
-                                overscroll-behavior: none !important;
-                                overflow-x: hidden !important;
-                            }
-                            
-                            /* Disable text selection on UI (not inputs) */
-                            body { 
-                                -webkit-user-select: none !important;
-                                user-select: none !important;
-                                -webkit-tap-highlight-color: transparent !important;
-                            }
-                            input, textarea, [contenteditable] {
-                                -webkit-user-select: text !important;
-                                user-select: text !important;
-                            }
-                        `;
-                        document.head.appendChild(style);
                     })();
                     """.trimIndent(),
                     null

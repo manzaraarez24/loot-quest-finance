@@ -80,14 +80,11 @@
   html, body {
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE/Edge */
-    overscroll-behavior: none; /* No overscroll glow/bounce */
     -webkit-overflow-scrolling: touch; /* Smooth momentum scrolling */
   }
 
   body {
     @apply bg-background text-foreground font-body antialiased;
-    /* Prevent pull-to-refresh and overscroll */
-    overscroll-behavior-y: none;
     /* Prevent text selection on UI elements — feels native */
     -webkit-user-select: none;
     user-select: none;
